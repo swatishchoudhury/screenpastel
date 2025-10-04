@@ -10,6 +10,7 @@ import {
   Sparkles,
   Upload,
 } from "lucide-react";
+import About from "../components/About";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -203,7 +204,13 @@ export default function ScreenshotEditor() {
       <div className="h-screen bg-background/80 backdrop-blur-sm text-foreground flex flex-col">
         <header className="border-b border-border/50 bg-background/30 backdrop-blur-md shadow-lg flex-shrink-0">
           <div className="px-6 py-2 flex items-center justify-between">
-            <h1 className="text-lg font-semibold">Screen Pastel</h1>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <img src="/favicon.ico" alt="" className="w-6 h-6" />
+                <h1 className="text-lg font-semibold">Screen Pastel</h1>
+              </div>
+              <About />
+            </div>
             <div className="flex gap-2">
               <input
                 ref={fileInputRef}
