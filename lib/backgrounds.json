@@ -1,0 +1,98 @@
+[
+  {
+    "id": "candy",
+    "name": "Pastel",
+    "type": "gradient",
+    "value": "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"
+  },
+  {
+    "id": "mint",
+    "name": "Mint",
+    "type": "gradient",
+    "value": "linear-gradient(135deg, #a8ff78 0%, #78ffd6 100%)"
+  },
+  {
+    "id": "forest",
+    "name": "Forest",
+    "type": "gradient",
+    "value": "linear-gradient(135deg, #0ba360 0%, #3cba92 100%)"
+  },
+  {
+    "id": "sea",
+    "name": "Sea",
+    "type": "gradient",
+    "value": "linear-gradient(135deg, #2E3192 0%, #1BFFFF 100%)"
+  },
+  {
+    "id": "indigo",
+    "name": "Indigo",
+    "type": "gradient",
+    "value": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+  },
+  {
+    "id": "lavender",
+    "name": "Lavender",
+    "type": "gradient",
+    "value": "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)"
+  },
+  {
+    "id": "purple",
+    "name": "Purple",
+    "type": "gradient",
+    "value": "linear-gradient(135deg, #c471f5 0%, #fa71cd 100%)"
+  },
+  {
+    "id": "sunrise",
+    "name": "Sunrise",
+    "type": "gradient",
+    "value": "linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)"
+  },
+  {
+    "id": "pink",
+    "name": "Pink",
+    "type": "gradient",
+    "value": "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
+  },
+  {
+    "id": "forest-shadow",
+    "name": "Forest Shadow",
+    "type": "gradient",
+    "value": "linear-gradient(135deg, #116436 0%, #023015 100%)"
+  },
+  {
+    "id": "midnight-sea",
+    "name": "Midnight Sea",
+    "type": "gradient",
+    "value": "linear-gradient(135deg, #2d2a75 0%, #101c2e 100%)"
+  },
+  {
+    "id": "deep-indigo",
+    "name": "Deep Indigo",
+    "type": "gradient",
+    "value": "linear-gradient(135deg, #444a7a 0%, #212449 100%)"
+  },
+  {
+    "id": "maroon",
+    "name": "Maroon",
+    "type": "gradient",
+    "value": "linear-gradient(135deg, #68294c 0%, #3a0f28 100%)"
+  },
+  {
+    "id": "dark-pink",
+    "name": "Dark Pink",
+    "type": "gradient",
+    "value": "linear-gradient(135deg, #b04b66 0%, #6b2037 100%)"
+  },
+  {
+    "id": "dark",
+    "name": "Dark",
+    "type": "solid",
+    "value": "#1a1a1a"
+  },
+  {
+    "id": "light",
+    "name": "Light",
+    "type": "solid",
+    "value": "#f5f5f5"
+  }
+]
