@@ -59,7 +59,7 @@ export default function ShadowControls({
         <input
           type="color"
           value={state.shadows[0].color.replace(
-            /rgba?$$(\d+),\s*(\d+),\s*(\d+).*$$/,
+            /rgba?\((\d+),\s*(\d+),\s*(\d+).*\)/,
             (_, r, g, b) =>
               "#" +
               [r, g, b]
