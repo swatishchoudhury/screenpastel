@@ -204,15 +204,15 @@ export default function ScreenshotEditor() {
     <>
       <div className="h-screen bg-background/80 backdrop-blur-sm text-foreground flex flex-col">
         <header className="border-b border-border/50 bg-background/30 backdrop-blur-md shadow-lg flex-shrink-0">
-          <div className="px-6 py-2 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
+          <div className="px-2 sm:px-6 py-2 flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <img src="/favicon.ico" alt="" className="w-6 h-6" />
-                <h1 className="text-lg font-semibold">Screen Pastel</h1>
+                <h1 className="text-sm sm:text-lg font-semibold">Screen Pastel</h1>
               </div>
               <About />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-1 sm:gap-2">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -223,33 +223,33 @@ export default function ScreenshotEditor() {
               <Button
                 variant="ghost"
                 onClick={() => fileInputRef.current?.click()}
-                className="text-muted-foreground hover:text-foreground hover:bg-accent"
+                className="text-muted-foreground hover:text-foreground hover:bg-accent px-2 sm:px-3"
               >
-                <Upload className="w-4 h-4 mr-2" />
-                Upload
+                <Upload className="w-4 h-4" />
+                <span className="hidden sm:inline ml-2">Upload</span>
               </Button>
               <Button
                 variant="ghost"
                 onClick={copyImage}
                 disabled={!state.image}
-                className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-muted-foreground"
+                className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-muted-foreground px-2 sm:px-3"
               >
-                <Copy className="w-4 h-4 mr-2" />
-                {copyMessage || "Copy"}
+                <Copy className="w-4 h-4" />
+                <span className="hidden sm:inline ml-2">{copyMessage || "Copy"}</span>
               </Button>
               <Button
                 onClick={exportImage}
                 disabled={!state.image}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground px-2 sm:px-3"
               >
-                <Download className="w-4 h-4 mr-2" />
-                Export
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline ml-2">Export</span>
               </Button>
             </div>
           </div>
         </header>
 
-        <main className="flex-1 p-2 md:p-8 flex items-center justify-center bg-background/50 backdrop-blur-sm overflow-hidden pb-36 md:pb-40">
+        <main className="flex-1 p-2 pb-36 md:p-8 md:pb-40 flex items-center justify-center bg-background/50 backdrop-blur-sm overflow-hidden">
           <div className="transform scale-75 md:scale-100 transition-transform duration-200 origin-center">
             {!state.image ? (
               <div
