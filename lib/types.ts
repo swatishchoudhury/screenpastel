@@ -24,7 +24,8 @@ interface ShadowLayer {
 interface StackConfig {
   enabled: boolean;
   count: number;
-  offset: number;
+  offsetX: number;
+  offsetY: number;
   scale: number;
   opacity: number;
   blur: number;

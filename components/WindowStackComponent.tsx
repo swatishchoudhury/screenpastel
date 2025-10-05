@@ -5,7 +5,8 @@ interface WindowStackComponentProps {
   stack: {
     enabled: boolean;
     count: number;
-    offset: number;
+    offsetX: number;
+    offsetY: number;
     scale: number;
     opacity: number;
     blur: number;
@@ -76,7 +77,8 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
     >
       {Array.from({ length: stack.count - 1 }).map((_, i) => {
         const index = stack.count - 2 - i;
-        const offset = (index + 1) * stack.offset;
+        const offsetX = (index + 1) * stack.offsetX;
+        const offsetY = (index + 1) * stack.offsetY;
         const scaleValue = stack.scale ** (index + 1);
 
         return (
@@ -84,7 +86,7 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
             key={i}
             className="absolute left-1/2 top-0 pointer-events-none"
             style={{
-              transform: `translateX(-50%) translateY(-${offset}px) scaleX(${scaleValue})`,
+              transform: `translateX(calc(-50% + ${offsetX}px)) translateY(${offsetY}px) scaleX(${scaleValue})`,
               transformOrigin: "top center",
               opacity: stack.opacity,
               filter: stack.blur ? `blur(${stack.blur}px)` : undefined,

@@ -94,45 +94,62 @@ export default function WindowControls({
         </div>
       </div>
       {state.stack.enabled && (
-        <div className="grid grid-cols-3 gap-6">
-          <Slider
-            label="Stack Count"
-            value={state.stack.count}
-            onChange={(v: number) =>
-              setState((prev) => ({
-                ...prev,
-                stack: { ...prev.stack, count: v },
-              }))
-            }
-            min={2}
-            max={5}
-          />
-          <Slider
-            label="Stack Offset"
-            value={state.stack.offset}
-            onChange={(v: number) =>
-              setState((prev) => ({
-                ...prev,
-                stack: { ...prev.stack, offset: v },
-              }))
-            }
-            min={5}
-            max={30}
-            unit="px"
-          />
-          <Slider
-            label="Stack Scale"
-            value={state.stack.scale}
-            onChange={(v: number) =>
-              setState((prev) => ({
-                ...prev,
-                stack: { ...prev.stack, scale: v },
-              }))
-            }
-            min={0.85}
-            max={0.99}
-            step={0.01}
-          />
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-6">
+            <Slider
+              label="Stack Count"
+              value={state.stack.count}
+              onChange={(v: number) =>
+                setState((prev) => ({
+                  ...prev,
+                  stack: { ...prev.stack, count: v },
+                }))
+              }
+              min={2}
+              max={5}
+            />
+            <Slider
+              label="Stack Scale"
+              value={state.stack.scale}
+              onChange={(v: number) =>
+                setState((prev) => ({
+                  ...prev,
+                  stack: { ...prev.stack, scale: v },
+                }))
+              }
+              min={0.85}
+              max={0.99}
+              step={0.01}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-6">
+            <Slider
+              label="Stack Offset X"
+              value={state.stack.offsetX}
+              onChange={(v: number) =>
+                setState((prev) => ({
+                  ...prev,
+                  stack: { ...prev.stack, offsetX: v },
+                }))
+              }
+              min={-30}
+              max={30}
+              unit="px"
+            />
+            <Slider
+              label="Stack Offset Y"
+              value={state.stack.offsetY}
+              onChange={(v: number) =>
+                setState((prev) => ({
+                  ...prev,
+                  stack: { ...prev.stack, offsetY: v },
+                }))
+              }
+              min={-15}
+              max={30}
+              unit="px"
+            />
+          </div>
         </div>
       )}
     </div>

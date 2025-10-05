@@ -51,7 +51,8 @@ export default function ScreenshotEditor() {
     stack: {
       enabled: false,
       count: 3,
-      offset: 10,
+      offsetX: 0,
+      offsetY: -10,
       scale: 0.95,
       opacity: 0.5,
       blur: 0,
