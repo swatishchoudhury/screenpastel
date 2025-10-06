@@ -21,8 +21,8 @@ export default function About() {
             <DialogContent className="max-w-md">
                 <DialogHeader>
                     <DialogTitle>
-                        <div className="flex items-center gap-2">
-                            <img src="/favicon.ico" alt="" className="w-4 h-4" />
+                        <div className="flex items-center gap-2.5">
+                            <img src="/favicon.ico" alt="Screen Pastel" className="w-5 h-5" />
                             Screen Pastel
                         </div>
                     </DialogTitle>
