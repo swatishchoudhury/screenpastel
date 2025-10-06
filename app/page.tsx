@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  AlertTriangle,
   Box,
+  Check,
   Copy,
   Download,
   Frame,
@@ -226,7 +228,7 @@ export default function ScreenshotEditor() {
                 className="text-muted-foreground hover:text-foreground hover:bg-accent px-2 sm:px-3"
               >
                 <Upload className="w-4 h-4" />
-                <span className="hidden sm:inline ml-2">Upload</span>
+                <span className="hidden sm:inline ml-1">Upload</span>
               </Button>
               <Button
                 variant="ghost"
@@ -234,8 +236,14 @@ export default function ScreenshotEditor() {
                 disabled={!state.image}
                 className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-muted-foreground px-2 sm:px-3"
               >
-                <Copy className="w-4 h-4" />
-                <span className="hidden sm:inline ml-2">{copyMessage || "Copy"}</span>
+                {copyMessage === "Copied!" ? (
+                  <Check className="w-4 h-4" />
+                ) : copyMessage === "Failed!" ? (
+                  <AlertTriangle className="w-4 h-4 text-red-500" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+                <span className="hidden sm:inline ml-1">{copyMessage || "Copy"}</span>
               </Button>
               <Button
                 onClick={exportImage}
@@ -243,7 +251,7 @@ export default function ScreenshotEditor() {
                 className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground px-2 sm:px-3"
               >
                 <Download className="w-4 h-4" />
-                <span className="hidden sm:inline ml-2">Export</span>
+                <span className="hidden sm:inline ml-1">Export</span>
               </Button>
             </div>
           </div>
