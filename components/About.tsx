@@ -1,5 +1,4 @@
 "use client";
-
 import { Github } from "lucide-react";
 import {
     Dialog,
@@ -22,31 +21,42 @@ export default function About() {
             <DialogContent className="max-w-md">
                 <DialogHeader>
                     <DialogTitle>
-                        <div className="flex items-center gap-2">
-                            <img src="/favicon.ico" alt="" className="w-4 h-4" />
+                        <div className="flex items-center gap-2.5">
+                            <img src="/favicon.ico" alt="Screen Pastel" className="w-5 h-5" />
                             Screen Pastel
                         </div>
                     </DialogTitle>
                     <DialogDescription>
-                        Create Beautiful Screenshots
+                        Create beautiful screenshots
                     </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">GitHub:</span>
+
+                <div className="space-y-4 pt-1">
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Copy Image</span>
+                            <kbd className="px-2 py-0.5 bg-muted rounded text-xs font-mono">Ctrl+C</kbd>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Export Image</span>
+                            <kbd className="px-2 py-0.5 bg-muted rounded text-xs font-mono">Ctrl+S</kbd>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Paste Image</span>
+                            <kbd className="px-2 py-0.5 bg-muted rounded text-xs font-mono">Ctrl+V</kbd>
+                        </div>
+                    </div>
+
+                    <div className="pt-2 border-t">
                         <a
                             href="https://github.com/swatishchoudhury/screenpastel"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
                         >
                             <Github className="w-4 h-4" />
                             swatishchoudhury/screenpastel
                         </a>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">License:</span>
-                        <span className="text-sm text-muted-foreground">MIT License</span>
                     </div>
                 </div>
             </DialogContent>

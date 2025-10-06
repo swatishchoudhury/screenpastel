@@ -24,6 +24,7 @@ import WindowControls from "../components/WindowControls";
 import WindowStackComponent from "../components/WindowStackComponent";
 import { BACKGROUNDS, FRAMES } from "../lib/data";
 import type { EditorState } from "../lib/types";
+import { exportImage as exportImageUtil, copyImage as copyImageUtil } from "../lib/imageExporter";
 
 type TabType = "background" | "styling" | "shadow" | "border" | "window";
 
@@ -105,64 +106,37 @@ export default function ScreenshotEditor() {
     return () => document.removeEventListener("paste", handlePaste);
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'c' || e.key === 'C') {
+          e.preventDefault();
+          if (state.image) {
+            copyImage();
+          }
+        } else if (e.key === 's' || e.key === 'S') {
+          e.preventDefault();
+          if (state.image) {
+            exportImage();
+          }
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [state.image]);
+
   const exportImage = async () => {
-    if (!canvasRef.current) return;
-
-    const domtoimage = (await import("dom-to-image")).default;
-
-    try {
-      const dataUrl = await domtoimage.toPng(canvasRef.current, {
-        quality: 1,
-        width: canvasRef.current.offsetWidth * 2,
-        height: canvasRef.current.offsetHeight * 2,
-        style: {
-          transform: "scale(2)",
-          transformOrigin: "top left",
-        },
-      });
-
-      const link = document.createElement("a");
-      link.download = "screenshot.png";
-      link.href = dataUrl;
-      link.click();
-    } catch (err) {
-      console.error("Export failed:", err);
+    if (canvasRef.current) {
+      exportImageUtil(canvasRef.current);
     }
   };
 
   const copyImage = async () => {
-    if (!canvasRef.current) return;
-
-    const domtoimage = (await import("dom-to-image")).default;
-
-    try {
-      const dataUrl = await domtoimage.toPng(canvasRef.current, {
-        quality: 1,
-        width: canvasRef.current.offsetWidth * 2,
-        height: canvasRef.current.offsetHeight * 2,
-        style: {
-          transform: "scale(2)",
-          transformOrigin: "top left",
-        },
-      });
-
-      const response = await fetch(dataUrl);
-      const blob = await response.blob();
-
-      if (navigator.clipboard && window.ClipboardItem) {
-        await navigator.clipboard.write([
-          new ClipboardItem({ "image/png": blob }),
-        ]);
-      } else {
-        const item = new ClipboardItem({ "image/png": blob });
-        await navigator.clipboard.write([item]);
-      }
-
-      setCopyMessage("Copied!");
-      setTimeout(() => setCopyMessage(""), 2000);
-    } catch (err) {
-      console.error("Copy failed:", err);
-      setCopyMessage("Failed!");
+    if (canvasRef.current) {
+      const success = await copyImageUtil(canvasRef.current);
+      setCopyMessage(success ? "Copied!" : "Failed!");
       setTimeout(() => setCopyMessage(""), 2000);
     }
   };
@@ -207,14 +181,14 @@ export default function ScreenshotEditor() {
       <div className="h-screen bg-background/80 backdrop-blur-sm text-foreground flex flex-col">
         <header className="border-b border-border/50 bg-background/30 backdrop-blur-md shadow-lg flex-shrink-0">
           <div className="px-2 sm:px-6 py-2 flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-4">
-              <div className="flex items-center gap-1 sm:gap-2">
-                <img src="/favicon.ico" alt="" className="w-6 h-6" />
-                <h1 className="text-sm sm:text-lg font-semibold">Screen Pastel</h1>
-              </div>
-              <About />
+            <div className="flex items-center gap-2.5">
+              <img src="/favicon.ico" alt="Screen Pastel" className="w-5 h-5 sm:w-6 sm:h-6" />
+              <h1 className="text-base sm:text-lg font-semibold">Screen Pastel</h1>
             </div>
-            <div className="flex gap-1 sm:gap-2">
+
+            <div className="flex items-center gap-1 sm:gap-2">
+              <About />
+              <div className="h-4 w-px bg-border mx-1" />
               <input
                 ref={fileInputRef}
                 type="file"
@@ -228,7 +202,7 @@ export default function ScreenshotEditor() {
                 className="text-muted-foreground hover:text-foreground hover:bg-accent px-2 sm:px-3"
               >
                 <Upload className="w-4 h-4" />
-                <span className="hidden sm:inline ml-1">Upload</span>
+                <span className="hidden sm:inline">Upload</span>
               </Button>
               <Button
                 variant="ghost"
@@ -243,7 +217,7 @@ export default function ScreenshotEditor() {
                 ) : (
                   <Copy className="w-4 h-4" />
                 )}
-                <span className="hidden sm:inline ml-1">{copyMessage || "Copy"}</span>
+                <span className="hidden sm:inline">{copyMessage || "Copy"}</span>
               </Button>
               <Button
                 onClick={exportImage}
@@ -251,7 +225,7 @@ export default function ScreenshotEditor() {
                 className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground px-2 sm:px-3"
               >
                 <Download className="w-4 h-4" />
-                <span className="hidden sm:inline ml-1">Export</span>
+                <span className="hidden sm:inline">Export</span>
               </Button>
             </div>
           </div>
@@ -269,7 +243,7 @@ export default function ScreenshotEditor() {
                   Upload or paste an image to get started
                 </p>
                 <p className="text-sm mt-2 text-muted-foreground/60">
-                  Press Ctrl/Cmd + V to paste from clipboard
+                  Shortcuts: Ctrl+C (Copy), Ctrl+S (Export), Ctrl+V (Paste)
                 </p>
               </div>
             ) : (
