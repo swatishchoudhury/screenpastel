@@ -202,7 +202,7 @@ export default function ScreenshotEditor() {
                 className="text-muted-foreground hover:text-foreground hover:bg-accent px-2 sm:px-3"
               >
                 <Upload className="w-4 h-4" />
-                <span className="hidden sm:inline ml-1">Upload</span>
+                <span className="hidden sm:inline">Upload</span>
               </Button>
               <Button
                 variant="ghost"
@@ -211,13 +211,13 @@ export default function ScreenshotEditor() {
                 className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-muted-foreground px-2 sm:px-3"
               >
                 {copyMessage === "Copied!" ? (
-                  <Check className="w-4 h-4 text-green-500" />
+                  <Check className="w-4 h-4" />
                 ) : copyMessage === "Failed!" ? (
                   <AlertTriangle className="w-4 h-4 text-red-500" />
                 ) : (
                   <Copy className="w-4 h-4" />
                 )}
-                <span className="hidden sm:inline ml-1">{copyMessage || "Copy"}</span>
+                <span className="hidden sm:inline">{copyMessage || "Copy"}</span>
               </Button>
               <Button
                 onClick={exportImage}
@@ -225,7 +225,7 @@ export default function ScreenshotEditor() {
                 className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground px-2 sm:px-3"
               >
                 <Download className="w-4 h-4" />
-                <span className="hidden sm:inline ml-1">Export</span>
+                <span className="hidden sm:inline">Export</span>
               </Button>
             </div>
           </div>
