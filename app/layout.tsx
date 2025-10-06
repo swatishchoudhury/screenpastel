@@ -15,6 +15,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Screen Pastel",
   description: "Create Beautiful Screenshots",
+  openGraph: {
+    images: [
+      {
+        url: '/og.png',
+        width: 1182,
+        height: 763,
+        alt: 'Screen Pastel - Create Beautiful Screenshots',
+      },
+    ],
+  },
+  twitter: {
+    images: ['/og.png'],
+  },
 };
 
 export default function RootLayout({
