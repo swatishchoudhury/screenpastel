@@ -24,6 +24,7 @@ import WindowControls from "../components/WindowControls";
 import WindowStackComponent from "../components/WindowStackComponent";
 import { BACKGROUNDS, FRAMES } from "../lib/data";
 import type { EditorState } from "../lib/types";
+import { exportImage as exportImageUtil, copyImage as copyImageUtil } from "../lib/imageExporter";
 
 type TabType = "background" | "styling" | "shadow" | "border" | "window";
 
@@ -105,64 +106,37 @@ export default function ScreenshotEditor() {
     return () => document.removeEventListener("paste", handlePaste);
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'c' || e.key === 'C') {
+          e.preventDefault();
+          if (state.image) {
+            copyImage();
+          }
+        } else if (e.key === 's' || e.key === 'S') {
+          e.preventDefault();
+          if (state.image) {
+            exportImage();
+          }
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [state.image]);
+
   const exportImage = async () => {
-    if (!canvasRef.current) return;
-
-    const domtoimage = (await import("dom-to-image")).default;
-
-    try {
-      const dataUrl = await domtoimage.toPng(canvasRef.current, {
-        quality: 1,
-        width: canvasRef.current.offsetWidth * 2,
-        height: canvasRef.current.offsetHeight * 2,
-        style: {
-          transform: "scale(2)",
-          transformOrigin: "top left",
-        },
-      });
-
-      const link = document.createElement("a");
-      link.download = "screenshot.png";
-      link.href = dataUrl;
-      link.click();
-    } catch (err) {
-      console.error("Export failed:", err);
+    if (canvasRef.current) {
+      exportImageUtil(canvasRef.current);
     }
   };
 
   const copyImage = async () => {
-    if (!canvasRef.current) return;
-
-    const domtoimage = (await import("dom-to-image")).default;
-
-    try {
-      const dataUrl = await domtoimage.toPng(canvasRef.current, {
-        quality: 1,
-        width: canvasRef.current.offsetWidth * 2,
-        height: canvasRef.current.offsetHeight * 2,
-        style: {
-          transform: "scale(2)",
-          transformOrigin: "top left",
-        },
-      });
-
-      const response = await fetch(dataUrl);
-      const blob = await response.blob();
-
-      if (navigator.clipboard && window.ClipboardItem) {
-        await navigator.clipboard.write([
-          new ClipboardItem({ "image/png": blob }),
-        ]);
-      } else {
-        const item = new ClipboardItem({ "image/png": blob });
-        await navigator.clipboard.write([item]);
-      }
-
-      setCopyMessage("Copied!");
-      setTimeout(() => setCopyMessage(""), 2000);
-    } catch (err) {
-      console.error("Copy failed:", err);
-      setCopyMessage("Failed!");
+    if (canvasRef.current) {
+      const success = await copyImageUtil(canvasRef.current);
+      setCopyMessage(success ? "Copied!" : "Failed!");
       setTimeout(() => setCopyMessage(""), 2000);
     }
   };
@@ -237,7 +211,7 @@ export default function ScreenshotEditor() {
                 className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-muted-foreground px-2 sm:px-3"
               >
                 {copyMessage === "Copied!" ? (
-                  <Check className="w-4 h-4" />
+                  <Check className="w-4 h-4 text-green-500" />
                 ) : copyMessage === "Failed!" ? (
                   <AlertTriangle className="w-4 h-4 text-red-500" />
                 ) : (
@@ -269,7 +243,7 @@ export default function ScreenshotEditor() {
                   Upload or paste an image to get started
                 </p>
                 <p className="text-sm mt-2 text-muted-foreground/60">
-                  Press Ctrl/Cmd + V to paste from clipboard
+                  Shortcuts: Ctrl+C (Copy), Ctrl+S (Export), Ctrl+V (Paste)
                 </p>
               </div>
             ) : (

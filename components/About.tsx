@@ -32,6 +32,23 @@ export default function About() {
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-3">
+                    <div>
+                        <h4 className="text-sm font-medium mb-2">Keyboard Shortcuts:</h4>
+                        <div className="space-y-1 text-sm text-muted-foreground">
+                            <div className="flex justify-between">
+                                <span>Copy Image</span>
+                                <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl+C</kbd>
+                            </div>
+                            <div className="flex justify-between">
+                                <span>Export Image</span>
+                                <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl+S</kbd>
+                            </div>
+                            <div className="flex justify-between">
+                                <span>Paste Image</span>
+                                <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl+V</kbd>
+                            </div>
+                        </div>
+                    </div>
                     <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">GitHub:</span>
                         <a
