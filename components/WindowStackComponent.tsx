@@ -37,22 +37,30 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
   if (!stack.enabled) {
     return (
       <div
+
+        className="relative inline-flex items-center justify-center"
         style={{
           transform: `scale(${scale}) rotate(${rotation}deg)`,
-          boxShadow: shadowString,
-          borderRadius: `${frameProps.borderRadius}px`,
         }}
       >
-        <WindowFrameComponent {...frameProps}>
-          <div className="overflow-hidden">
-            <img
-              src={image}
-              alt="Screenshot"
-              className="block max-w-full h-auto object-contain"
-              style={{ maxHeight: "45vh" }}
-            />
-          </div>
-        </WindowFrameComponent>
+        <div
+          style={{
+            boxShadow: shadowString,
+            borderRadius: `${frameProps.borderRadius}px`,
+          }}
+          className="relative z-10"
+        >
+          <WindowFrameComponent {...frameProps}>
+            <div className="overflow-hidden">
+              <img
+                src={image}
+                alt="Screenshot"
+                className="block max-w-full h-auto object-contain"
+                style={{ maxHeight: "45vh" }}
+              />
+            </div>
+          </WindowFrameComponent>
+        </div>
       </div>
     );
   }
