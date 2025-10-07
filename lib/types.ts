@@ -29,6 +29,7 @@ interface StackConfig {
   scale: number;
   opacity: number;
   blur: number;
+  effect: "default" | "silhouette";
 }
 
 interface EditorState {

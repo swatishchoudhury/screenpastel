@@ -92,6 +92,43 @@ export default function WindowControls({
             Enable Stack
           </Label>
         </div>
+        {state.stack.enabled && (
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Stack Effect</Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-[180px] justify-between bg-secondary/50 backdrop-blur-sm border-border/50 hover:bg-accent/80"
+                >
+                  {state.stack.effect === "default" ? "Default" : "Silhouette"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[180px]">
+                <DropdownMenuItem
+                  onClick={() =>
+                    setState((prev) => ({
+                      ...prev,
+                      stack: { ...prev.stack, effect: "default" },
+                    }))
+                  }
+                >
+                  Default
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    setState((prev) => ({
+                      ...prev,
+                      stack: { ...prev.stack, effect: "silhouette" },
+                    }))
+                  }
+                >
+                  Silhouette
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </div>
       {state.stack.enabled && (
         <div className="space-y-6">

@@ -10,6 +10,7 @@ interface WindowStackComponentProps {
     scale: number;
     opacity: number;
     blur: number;
+    effect: "default" | "silhouette";
   };
   frameProps: {
     type: string;
@@ -56,17 +57,27 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
     );
   }
 
-  const renderImage = (isStack: boolean) => (
-    <img
-      src={image}
-      alt="Screenshot"
-      className="block max-w-full h-auto object-contain"
-      style={{
-        maxHeight: "45vh",
-        filter: isStack ? "brightness(0.8)" : undefined,
-      }}
-    />
-  );
+  const renderImage = (isStack: boolean) => {
+    if (isStack && stack.effect === "silhouette") {
+      return (
+        <div
+          className="bg-black opacity-50"
+          style={{ height: "45vh" }}
+        />
+      );
+    }
+    return (
+      <img
+        src={image}
+        alt="Screenshot"
+        className="block max-w-full h-auto object-contain"
+        style={{
+          maxHeight: "45vh",
+          filter: isStack ? "brightness(0.8)" : undefined,
+        }}
+      />
+    );
+  };
 
   return (
     <div

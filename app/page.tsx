@@ -59,6 +59,7 @@ export default function ScreenshotEditor() {
       scale: 0.95,
       opacity: 0.5,
       blur: 0,
+      effect: "default",
     },
     frameDarkMode: true,
     customGradient: { color1: "#ff9a9e", color2: "#fecfef" },
