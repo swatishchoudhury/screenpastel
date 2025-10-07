@@ -64,6 +64,8 @@ export default function ScreenshotEditor() {
     customGradient: { color1: "#ff9a9e", color2: "#fecfef" },
     gradientDirection: 135,
     address: "https://screenpastel.vercel.app",
+    backgroundTintColor: "#000000",
+    backgroundTintOpacity: 0,
   });
 
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -255,6 +257,15 @@ export default function ScreenshotEditor() {
                 }}
                 className="relative"
               >
+                {state.backgroundTintOpacity > 0 && (
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      backgroundColor: state.backgroundTintColor,
+                      opacity: state.backgroundTintOpacity,
+                    }}
+                  />
+                )}
                 <WindowStackComponent
                   stack={state.stack}
                   frameProps={{

@@ -7,7 +7,7 @@ interface WindowFrame {
 interface Background {
   id: string;
   name: string;
-  type: "gradient" | "solid";
+  type: "gradient" | "solid" | "image";
   value: string;
 }
 
@@ -52,6 +52,8 @@ interface EditorState {
   };
   gradientDirection: number;
   address: string;
+  backgroundTintColor: string;
+  backgroundTintOpacity: number;
 }
 
 export type { WindowFrame, Background, ShadowLayer, StackConfig, EditorState };
