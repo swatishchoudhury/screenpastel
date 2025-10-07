@@ -57,7 +57,7 @@ export default function GradientControls({
                         className={`flex flex-col gap-1 transition-all ${showCustomGradient ? "rounded-lg bg-secondary/100" : ""}`}
                     >
                         <div className="flex gap-2">
-                            <div className="flex flex-col items-center gap-1">
+                            <div className="flex flex-col items-center gap-1 w-12">
                                 <button
                                     onClick={handleCustomButtonClick}
                                     className={`mt-1 w-12 h-8 rounded-none transition-all flex-shrink-0 flex items-center justify-center group relative ${showCustomGradient
@@ -76,14 +76,14 @@ export default function GradientControls({
                                     )}
                                     <div className="absolute inset-0 rounded-none bg-black opacity-0 group-hover:opacity-25 transition-opacity"></div>
                                 </button>
-                                <span className="text-xs text-muted-foreground text-center">
+                                <span className="text-xs text-muted-foreground text-center truncate w-full">
                                     Custom
                                 </span>
                             </div>
 
                             {showCustomGradient && (
                                 <>
-                                    <div className="flex flex-col items-center gap-1">
+                                    <div className="flex flex-col items-center gap-1 w-12">
                                         <input
                                             type="color"
                                             value={state.customGradient.color1}
@@ -105,11 +105,11 @@ export default function GradientControls({
                                             className="mt-1 w-12 h-8 rounded-none cursor-pointer hover:ring-1 hover:ring-muted"
                                             title="Custom Gradient Color 1"
                                         />
-                                        <span className="text-xs text-muted-foreground text-center">
+                                        <span className="text-xs text-muted-foreground text-center truncate w-full">
                                             Color 1
                                         </span>
                                     </div>
-                                    <div className="flex flex-col items-center gap-1">
+                                    <div className="flex flex-col items-center gap-1 w-12">
                                         <input
                                             type="color"
                                             value={state.customGradient.color2}
@@ -131,7 +131,7 @@ export default function GradientControls({
                                             className="mt-1 w-12 h-8 rounded-none cursor-pointer hover:ring-1 hover:ring-muted"
                                             title="Custom Gradient Color 2"
                                         />
-                                        <span className="text-xs text-muted-foreground text-center">
+                                        <span className="text-xs text-muted-foreground text-center truncate w-full">
                                             Color 2
                                         </span>
                                     </div>
@@ -141,7 +141,7 @@ export default function GradientControls({
                     </div>
 
                     {presetGradients.map((bg) => (
-                        <div key={bg.id} className="flex flex-col items-center gap-1">
+                        <div key={bg.id} className="flex flex-col items-center gap-1 w-12">
                             <button
                                 onClick={() => applyBackground(bg)}
                                 className={`mt-1 w-12 h-8 rounded-none transition-all flex-shrink-0 relative group ${state.background.id === bg.id
@@ -158,14 +158,13 @@ export default function GradientControls({
                                 )}
                                 <div className="absolute inset-0 rounded-none bg-black opacity-0 group-hover:opacity-25 transition-opacity"></div>
                             </button>
-                            <span className="text-xs text-muted-foreground text-center">
+                            <span className="text-xs text-muted-foreground text-center w-full">
                                 {bg.name}
                             </span>
                         </div>
                     ))}
                 </div>
             </div>
-
         </div>
     );
 }
