@@ -51,7 +51,7 @@ export default function GradientControls({
     return (
         <div className="space-y-1.5">
             {/* <Label className="text-xs text-muted-foreground">Gradients</Label> */}
-            <div className="overflow-x-auto pb-1">
+            <div className="overflow-x-auto pb-1 px-1">
                 <div className="flex gap-2 min-w-max">
                     <div
                         className={`flex flex-col gap-1 transition-all ${showCustomGradient ? "rounded-lg bg-secondary/100" : ""}`}

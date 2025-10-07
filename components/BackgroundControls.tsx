@@ -15,7 +15,7 @@ export default function BackgroundControls({
 }) {
     return (
         <>
-            <div className="overflow-x-auto pb-1">
+            <div className="overflow-x-auto pb-1 px-1">
                 <div className="flex gap-2 min-w-max">
                     <ImageControls state={state} setState={setState} />
                     <div className="border-l border-muted-foreground/20 h-14"></div>
