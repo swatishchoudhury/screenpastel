@@ -110,7 +110,7 @@ const WindowFrameComponent = ({
   return (
     <div
       style={{
-        borderRadius: `${borderRadius}px`,
+        borderRadius: `${borderRadius + borderWidth}px`,
         border:
           borderWidth > 0 ? `${borderWidth}px solid ${borderColor}` : undefined,
         overflow: "hidden",

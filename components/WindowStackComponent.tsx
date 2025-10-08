@@ -46,7 +46,7 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
         <div
           style={{
             boxShadow: shadowString,
-            borderRadius: `${frameProps.borderRadius}px`,
+            borderRadius: `${frameProps.borderRadius + frameProps.borderWidth}px`,
           }}
           className="relative z-10"
         >
@@ -122,7 +122,7 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
       <div
         style={{
           boxShadow: shadowString,
-          borderRadius: `${frameProps.borderRadius}px`,
+          borderRadius: `${frameProps.borderRadius + frameProps.borderWidth}px`,
         }}
         className="relative z-10"
       >

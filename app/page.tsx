@@ -16,6 +16,14 @@ import About from "../components/About";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import BackgroundControls from "../components/BackgroundControls";
 import BorderControls from "../components/BorderControls";
 import ShadowControls from "../components/ShadowControls";
@@ -31,6 +39,7 @@ type TabType = "background" | "styling" | "shadow" | "border" | "window";
 export default function ScreenshotEditor() {
   const [activeTab, setActiveTab] = useState<TabType | null>("background");
   const [copyMessage, setCopyMessage] = useState<string>("");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [state, setState] = useState<EditorState>({
     image: null,
     frame: FRAMES[0],
@@ -130,6 +139,14 @@ export default function ScreenshotEditor() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [state.image]);
 
+  const handleNewUploadClick = () => {
+    if (state.image) {
+      setShowConfirmDialog(true);
+    } else {
+      fileInputRef.current?.click();
+    }
+  };
+
   const exportImage = async () => {
     if (canvasRef.current) {
       exportImageUtil(canvasRef.current);
@@ -201,11 +218,11 @@ export default function ScreenshotEditor() {
               />
               <Button
                 variant="ghost"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={handleNewUploadClick}
                 className="text-muted-foreground hover:text-foreground hover:bg-accent px-2 sm:px-3"
               >
                 <Upload className="w-4 h-4" />
-                <span className="hidden sm:inline">Upload</span>
+                <span className="hidden sm:inline">{state.image ? "New" : "Upload"}</span>
               </Button>
               <Button
                 variant="ghost"
@@ -315,6 +332,28 @@ export default function ScreenshotEditor() {
           })}
         </div>
       </div>
+
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove current image?</DialogTitle>
+            <DialogDescription>
+              This will remove your current image and return you to the upload screen. You won't be able to recover your changes.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              setState(prev => ({ ...prev, image: null }));
+              setShowConfirmDialog(false);
+            }}>
+              Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
