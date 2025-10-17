@@ -11,6 +11,14 @@ interface Background {
   value: string;
 }
 
+interface Theme {
+  id: string;
+  name: string;
+  color1: string;
+  color2: string;
+  direction: number;
+}
+
 interface ShadowLayer {
   id: string;
   offsetX: number;
@@ -57,4 +65,4 @@ interface EditorState {
   backgroundTintOpacity: number;
 }
 
-export type { WindowFrame, Background, ShadowLayer, StackConfig, EditorState };
+export type { WindowFrame, Background, Theme, ShadowLayer, StackConfig, EditorState };

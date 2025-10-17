@@ -208,7 +208,7 @@ export default function ScreenshotEditor() {
 
             <div className="flex items-center gap-1 sm:gap-2">
               <About />
-              <div className="h-4 w-px bg-border mx-1" />
+              <div className="h-4 w-px bg-border mx-1"></div>
               <input
                 ref={fileInputRef}
                 type="file"
