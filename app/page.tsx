@@ -76,6 +76,7 @@ export default function ScreenshotEditor() {
     address: "https://screenpastel.vercel.app",
     backgroundTintColor: "#000000",
     backgroundTintOpacity: 0,
+    backgroundBlur: 0,
   });
 
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -269,12 +270,17 @@ export default function ScreenshotEditor() {
             ) : (
               <div
                 ref={canvasRef}
-                style={{
-                  background: state.background.value,
-                  padding: `${state.padding}px`,
-                }}
-                className="relative"
+                style={{ padding: `${state.padding}px` }}
+                className="relative overflow-hidden"
               >
+                <div
+                  className="absolute pointer-events-none"
+                  style={{
+                    background: state.background.value,
+                    filter: state.backgroundBlur > 0 ? `blur(${state.backgroundBlur}px)` : undefined,
+                    inset: state.backgroundBlur > 0 ? `-${state.backgroundBlur}px` : 0,
+                  }}
+                />
                 {state.backgroundTintOpacity > 0 && (
                   <div
                     className="absolute inset-0 pointer-events-none"

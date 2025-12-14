@@ -1,9 +1,8 @@
 "use client";
 import type React from "react";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import GradientControls from "./GradientControls";
 import ImageControls from "./ImageControls";
+import Slider from "./Slider";
 import type { EditorState } from "../lib/types";
 
 export default function BackgroundControls({
@@ -22,46 +21,53 @@ export default function BackgroundControls({
                     <GradientControls state={state} setState={setState} />
                 </div>
             </div>
-            {state.background.type === "gradient" && (
-                <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground">Direction</Label>
-                    <div className="flex items-center gap-2">
-                        <Slider
-                            value={[state.gradientDirection]}
-                            onValueChange={([value]) =>
-                                setState((prev) => {
-                                    const newDirection = value;
-                                    let updatedBackground = prev.background;
-                                    if (prev.background.type === "gradient") {
-                                        const match = prev.background.value.match(
-                                            /linear-gradient\(\d+deg, (.+)\)/,
-                                        );
-                                        if (match) {
-                                            const colors = match[1];
-                                            updatedBackground = {
-                                                ...prev.background,
-                                                value: `linear-gradient(${newDirection}deg, ${colors})`,
-                                            };
-                                        }
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl">
+                <Slider
+                    label="Blur"
+                    value={state.backgroundBlur}
+                    onChange={(v: number) =>
+                        setState((prev) => ({ ...prev, backgroundBlur: v }))
+                    }
+                    min={0}
+                    max={50}
+                    unit="px"
+                />
+
+                {state.background.type === "gradient" && (
+                    <Slider
+                        label="Direction"
+                        value={state.gradientDirection}
+                        onChange={(v: number) =>
+                            setState((prev) => {
+                                const newDirection = v;
+                                let updatedBackground = prev.background;
+
+                                if (prev.background.type === "gradient") {
+                                    const match = prev.background.value.match(
+                                        /linear-gradient\(\d+deg, (.+)\)/,
+                                    );
+                                    if (match) {
+                                        const colors = match[1];
+                                        updatedBackground = {
+                                            ...prev.background,
+                                            value: `linear-gradient(${newDirection}deg, ${colors})`,
+                                        };
                                     }
-                                    return {
-                                        ...prev,
-                                        gradientDirection: newDirection,
-                                        background: updatedBackground,
-                                    };
-                                })
-                            }
-                            min={0}
-                            max={360}
-                            step={1}
-                            className="max-w-1/4"
-                        />
-                        <div className="text-xs text-muted-foreground w-12 text-center">
-                            {state.gradientDirection}°
-                        </div>
-                    </div>
-                </div>
-            )}
+                                }
+
+                                return {
+                                    ...prev,
+                                    gradientDirection: newDirection,
+                                    background: updatedBackground,
+                                };
+                            })
+                        }
+                        min={0}
+                        max={360}
+                        unit="°"
+                    />
+                )}
+            </div>
         </>
     );
 }
