@@ -26,6 +26,7 @@ interface ShadowLayer {
   blur: number;
   spread: number;
   color: string;
+  opacity: number;
   enabled: boolean;
 }
 
