@@ -54,30 +54,30 @@ export default function ShadowControls({
         max={100}
         unit="px"
       />
+      <Slider
+        label="Opacity"
+        value={state.shadows[0].opacity}
+        onChange={(v: number) =>
+          setState((prev) => ({
+            ...prev,
+            shadows: [{ ...prev.shadows[0], opacity: v }],
+          }))
+        }
+        min={0}
+        max={1}
+        step={0.01}
+      />
       <div className="space-y-2">
         <Label className="text-xs text-muted-foreground">Shadow Color</Label>
         <input
           type="color"
-          value={state.shadows[0].color.replace(
-            /rgba?\((\d+),\s*(\d+),\s*(\d+).*\)/,
-            (_, r, g, b) =>
-              "#" +
-              [r, g, b]
-                .map((x) => Number.parseInt(x, 10).toString(16).padStart(2, "0"))
-                .join(""),
-          )}
-          onChange={(e) => {
-            const hex = e.target.value;
-            const r = Number.parseInt(hex.slice(1, 3), 16);
-            const g = Number.parseInt(hex.slice(3, 5), 16);
-            const b = Number.parseInt(hex.slice(5, 7), 16);
+          value={state.shadows[0].color}
+          onChange={(e) =>
             setState((prev) => ({
               ...prev,
-              shadows: [
-                { ...prev.shadows[0], color: `rgba(${r},${g},${b},0.3)` },
-              ],
-            }));
-          }}
+              shadows: [{ ...prev.shadows[0], color: e.target.value }],
+            }))
+          }
           className="w-16 h-8 rounded-none cursor-pointer"
         />
       </div>

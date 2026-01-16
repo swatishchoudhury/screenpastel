@@ -51,7 +51,8 @@ export default function ScreenshotEditor() {
         offsetY: 20,
         blur: 40,
         spread: 0,
-        color: "rgba(0,0,0,0.3)",
+        color: "#000000",
+        opacity: 0.3,
         enabled: true,
       },
     ],
@@ -163,10 +164,12 @@ export default function ScreenshotEditor() {
 
   const shadowString = state.shadows
     .filter((s) => s.enabled)
-    .map(
-      (s) =>
-        `${s.offsetX}px ${s.offsetY}px ${s.blur}px ${s.spread}px ${s.color}`,
-    )
+    .map((s) => {
+      const r = Number.parseInt(s.color.slice(1, 3), 16);
+      const g = Number.parseInt(s.color.slice(3, 5), 16);
+      const b = Number.parseInt(s.color.slice(5, 7), 16);
+      return `${s.offsetX}px ${s.offsetY}px ${s.blur}px ${s.spread}px rgba(${r},${g},${b},${s.opacity})`;
+    })
     .join(", ");
 
   const tabs = [
