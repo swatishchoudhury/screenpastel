@@ -64,6 +64,7 @@ interface EditorState {
   address: string;
   backgroundTintColor: string;
   backgroundTintOpacity: number;
+  backgroundBlur: number;
 }
 
 export type { WindowFrame, Background, Theme, ShadowLayer, StackConfig, EditorState };
