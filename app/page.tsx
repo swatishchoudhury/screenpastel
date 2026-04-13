@@ -517,7 +517,7 @@ export default function ScreenshotEditor() {
 
 
             {activeTab && (
-              <div className="w-[280px] overflow-y-auto sidebar-scroll">
+              <div className="w-[280px] overflow-y-auto sidebar-scroll select-none">
                 <div className="p-4">
                   <h2 className="text-base font-semibold text-foreground mb-4">
                     {tabs.find((t) => t.id === activeTab)?.label}
@@ -547,7 +547,7 @@ export default function ScreenshotEditor() {
 
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-20 border-t border-border/30 bg-background/20 backdrop-blur-xl shadow-2xl shadow-black/20">
         {activeTab && (
-          <div className="px-4 py-3 max-h-[50vh] overflow-y-auto sidebar-scroll">{renderTabContent()}</div>
+          <div className="px-4 py-3 max-h-[50vh] overflow-y-auto sidebar-scroll select-none">{renderTabContent()}</div>
         )}
         <div
           className={`flex items-center justify-center gap-1 px-2 py-2 ${activeTab ? "border-t border-border" : ""} overflow-x-auto`}

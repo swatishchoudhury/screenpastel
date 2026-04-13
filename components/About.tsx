@@ -1,5 +1,5 @@
 "use client";
-import { Github } from "lucide-react";
+import { Github, Info } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -14,8 +14,9 @@ export default function About() {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="sm">
-                    About
+                <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-accent px-2 sm:px-3">
+                    <Info className="w-4 h-4" />
+                    <span className="hidden sm:inline">About</span>
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">

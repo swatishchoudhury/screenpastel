@@ -206,14 +206,14 @@ export default function GradientControls({
 
             <button
                 onClick={handleCustomButtonClick}
-                className={`relative flex flex-col items-center justify-center gap-2 rounded-lg transition-all group overflow-hidden ${
+                className={`relative flex flex-col items-center justify-center gap-2 rounded-md transition-all group overflow-hidden ${
                     isCustomActive
                         ? "bg-white shadow-md p-1"
                         : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
                 }`}
             >
                 <div
-                    className="w-full h-[72px] rounded-md flex flex-col items-center justify-center gap-2 overflow-hidden"
+                    className="w-full h-14 md:h-[72px] rounded flex flex-col items-center justify-center gap-1 md:gap-2 overflow-hidden"
                     style={{
                         background: createGradientValue(
                             state.gradientDirection,
@@ -223,11 +223,11 @@ export default function GradientControls({
                     }}
                 >
                     {isCustomActive ? (
-                        <Check className="w-4 h-4 text-white drop-shadow-lg" />
+                        <Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-white drop-shadow-lg" />
                     ) : (
-                        <Pencil className="w-4 h-4 text-white/80 drop-shadow-lg" />
+                        <Pencil className="w-3.5 h-3.5 md:w-4 md:h-4 text-white/80 drop-shadow-lg" />
                     )}
-                    <span className="text-xs text-white/90 drop-shadow-md font-medium">Custom</span>
+                    <span className="text-[10px] md:text-xs text-white/90 drop-shadow-md font-medium leading-none">Custom</span>
                 </div>
             </button>
 
@@ -264,7 +264,7 @@ export default function GradientControls({
                     {customThemes.length > 0 && (
                         <div className="space-y-2">
                             <span className="text-xs font-medium text-foreground/80 mt-2 block">Saved Themes</span>
-                            <div className="grid grid-cols-4 md:grid-cols-3 gap-2 md:gap-3">
+                            <div className="grid grid-cols-5 md:grid-cols-3 gap-2 md:gap-3">
                                 {customThemes.map((theme) => {
                                     const themeGradient = createGradientValue(theme.direction, theme.color1, theme.color2);
                                     const isActive = state.background.id === "custom" && state.background.value === themeGradient;
@@ -276,14 +276,14 @@ export default function GradientControls({
                                                 className="w-full flex flex-col items-center gap-1 md:gap-1.5 group"
                                             >
                                                 <div
-                                                    className={`w-full rounded-lg transition-all ${
+                                                    className={`w-full rounded-md transition-all ${
                                                         isActive
                                                             ? "bg-white shadow-md p-1"
                                                             : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
                                                     }`}
                                                 >
                                                     <div
-                                                        className="w-full aspect-[5/3] md:aspect-[4/3] rounded-md relative overflow-hidden transition-all"
+                                                        className="w-full aspect-[5/3] md:aspect-[4/3] rounded relative overflow-hidden transition-all"
                                                         style={{ background: themeGradient }}
                                                         title={theme.name}
                                                     >
