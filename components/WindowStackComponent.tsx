@@ -1,4 +1,5 @@
 import type React from "react";
+import { RotateCw } from "lucide-react";
 import WindowFrameComponent from "./WindowFrameComponent";
 
 interface WindowStackComponentProps {
@@ -24,6 +25,10 @@ interface WindowStackComponentProps {
   scale: number;
   rotation: number;
   shadowString: string;
+  positionX: number;
+  positionY: number;
+  onScaleStart?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onRotateStart?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
@@ -33,16 +38,48 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
   scale,
   rotation,
   shadowString,
+  positionX,
+  positionY,
+  onScaleStart,
+  onRotateStart,
 }) => {
+  const renderResizeHandles = () => {
+    if (!onScaleStart) return null;
+    const h = "absolute w-3 h-3 border border-primary/60 bg-background/90 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-auto shadow-sm hover:border-primary";
+    return (
+      <>
+        <div className={`${h} cursor-nwse-resize`} style={{ top: '-6px', left: '-6px' }} onMouseDown={onScaleStart} />
+        <div className={`${h} cursor-nesw-resize`} style={{ top: '-6px', right: '-6px' }} onMouseDown={onScaleStart} />
+        <div className={`${h} cursor-nesw-resize`} style={{ bottom: '-6px', left: '-6px' }} onMouseDown={onScaleStart} />
+        <div className={`${h} cursor-nwse-resize`} style={{ bottom: '-6px', right: '-6px' }} onMouseDown={onScaleStart} />
+        {onRotateStart && (
+          <div
+            className="absolute left-1/2 flex flex-col items-center opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-auto"
+            style={{ top: '-34px', transform: 'translateX(-50%)' }}
+          >
+            <div
+              className="flex items-center justify-center w-5 h-5 border border-primary/60 bg-background/90 rounded-full cursor-grab shadow-sm hover:border-primary text-primary/80 hover:text-primary transition-colors"
+              onMouseDown={onRotateStart}
+              title="Drag to rotate"
+            >
+              <RotateCw className="w-3 h-3" strokeWidth={2.5} />
+            </div>
+            <div className="w-px h-3 bg-primary/30" />
+          </div>
+        )}
+      </>
+    );
+  };
   if (!stack.enabled) {
     return (
       <div
-
-        className="relative inline-flex items-center justify-center"
+        data-transform-container
+        className="relative inline-flex items-center justify-center cursor-move group"
         style={{
-          transform: `scale(${scale}) rotate(${rotation}deg)`,
+          transform: `translateX(${positionX}px) translateY(${positionY}px) scale(${scale}) rotate(${rotation}deg)`,
         }}
       >
+        {renderResizeHandles()}
         <div
           style={{
             boxShadow: shadowString,
@@ -89,11 +126,13 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
 
   return (
     <div
-      className="relative inline-flex items-center justify-center"
+      data-transform-container
+      className="relative inline-flex items-center justify-center cursor-move group"
       style={{
-        transform: `scale(${scale}) rotate(${rotation}deg)`,
+        transform: `translateX(${positionX}px) translateY(${positionY}px) scale(${scale}) rotate(${rotation}deg)`,
       }}
     >
+      {renderResizeHandles()}
       {Array.from({ length: stack.count - 1 }).map((_, i) => {
         const index = stack.count - 2 - i;
         const offsetX = (index + 1) * stack.offsetX;

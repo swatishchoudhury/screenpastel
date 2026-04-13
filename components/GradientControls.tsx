@@ -3,10 +3,10 @@
 import { Check, Pencil, Save, Trash2 } from "lucide-react";
 import type React from "react";
 import { useState, useEffect } from "react";
-import { BACKGROUNDS } from "../lib/data";
 import type { Background, EditorState, Theme } from "../lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import ColorSwatch from "./ColorSwatch";
 import {
     Dialog,
     DialogContent,
@@ -34,8 +34,6 @@ export default function GradientControls({
     const [themeName, setThemeName] = useState("");
     const [themeToDelete, setThemeToDelete] = useState<string | null>(null);
     const [saveError, setSaveError] = useState<string>("");
-
-    const presetGradients = BACKGROUNDS.filter(bg => bg.type === "gradient");
 
     useEffect(() => {
         try {
@@ -100,7 +98,7 @@ export default function GradientControls({
             setShowSaveDialog(false);
             setThemeName("");
             setSaveError("");
-        } catch (error) {
+        } catch {
             // Error already handled in saveToLocalStorage
         }
     };
@@ -131,24 +129,6 @@ export default function GradientControls({
             },
         }));
         setShowCustomGradient(true);
-    };
-
-    const applyBackground = (bg: Background) => {
-        let direction = state.gradientDirection;
-        if (bg.type === "gradient") {
-            const match = bg.value.match(/linear-gradient\((\d+)deg,/);
-            if (match) {
-                direction = parseInt(match[1], 10);
-            }
-        }
-        setState((prev) => ({
-            ...prev,
-            background: bg,
-            gradientDirection: direction,
-        }));
-        if (bg.id !== "custom") {
-            setShowCustomGradient(false);
-        }
     };
 
     const handleCustomButtonClick = () => {
@@ -219,148 +199,126 @@ export default function GradientControls({
         }
     };
 
-    return (
-        <div className="space-y-1.5">
-            <div className="overflow-x-auto pb-1 px-1">
-                <div className="flex gap-2 min-w-max">
-                    <div
-                        className={`flex flex-col gap-1 transition-all ${showCustomGradient ? "rounded-lg bg-secondary/100" : ""
-                            }`}
-                    >
-                        <div className="flex gap-2">
-                            <div className="flex flex-col items-center gap-1 w-12">
-                                <button
-                                    onClick={handleCustomButtonClick}
-                                    className={`mt-1 w-12 h-8 rounded-none transition-all flex-shrink-0 flex items-center justify-center group relative ${showCustomGradient
-                                        ? "ring-2 ring-primary/20"
-                                        : "hover:ring-1 hover:ring-muted"
-                                        }`}
-                                    style={{
-                                        background: createGradientValue(
-                                            state.gradientDirection,
-                                            state.customGradient.color1,
-                                            state.customGradient.color2
-                                        ),
-                                    }}
-                                    title="Custom Gradient"
-                                >
-                                    {showCustomGradient ? (
-                                        <Check className="w-3 h-3 text-white drop-shadow-lg" />
-                                    ) : (
-                                        <Pencil className="w-3 h-3 text-white drop-shadow-lg" />
-                                    )}
-                                    <div className="absolute inset-0 rounded-none bg-black opacity-0 group-hover:opacity-25 transition-opacity"></div>
-                                </button>
-                                <span className="text-xs text-muted-foreground text-center truncate w-full">
-                                    Custom
-                                </span>
-                            </div>
+    const isCustomActive = state.background.id === "custom";
 
-                            {showCustomGradient && (
-                                <>
-                                    <div className="flex flex-col items-center gap-1 w-12">
-                                        <input
-                                            type="color"
-                                            value={state.customGradient.color1}
-                                            onChange={(e) => handleColor1Change(e.target.value)}
-                                            className="mt-1 w-12 h-8 rounded-none cursor-pointer hover:ring-1 hover:ring-muted"
-                                            title="Custom Gradient Color 1"
-                                        />
-                                        <span className="text-xs text-muted-foreground text-center truncate w-full">
-                                            Color 1
-                                        </span>
-                                    </div>
-                                    <div className="flex flex-col items-center gap-1 w-12">
-                                        <input
-                                            type="color"
-                                            value={state.customGradient.color2}
-                                            onChange={(e) => handleColor2Change(e.target.value)}
-                                            className="mt-1 w-12 h-8 rounded-none cursor-pointer hover:ring-1 hover:ring-muted"
-                                            title="Custom Gradient Color 2"
-                                        />
-                                        <span className="text-xs text-muted-foreground text-center truncate w-full">
-                                            Color 2
-                                        </span>
-                                    </div>
-                                    <div className="flex flex-col items-center gap-1 w-12">
-                                        <Button
-                                            onClick={handleSaveClick}
-                                            size="icon"
-                                            className="mt-1 w-8 h-8"
-                                            title="Save Theme"
-                                        >
-                                            <Save className="w-3.5 h-3.5" />
-                                        </Button>
-                                        <span className="text-xs text-muted-foreground text-center truncate w-full">
-                                            Save
-                                        </span>
-                                    </div>
-                                </>
-                            )}
+    return (
+        <>
+
+            <button
+                onClick={handleCustomButtonClick}
+                className={`relative flex flex-col items-center justify-center gap-2 rounded-lg transition-all group overflow-hidden ${
+                    isCustomActive
+                        ? "bg-white shadow-md p-1"
+                        : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
+                }`}
+            >
+                <div
+                    className="w-full h-[72px] rounded-md flex flex-col items-center justify-center gap-2 overflow-hidden"
+                    style={{
+                        background: createGradientValue(
+                            state.gradientDirection,
+                            state.customGradient.color1,
+                            state.customGradient.color2
+                        ),
+                    }}
+                >
+                    {isCustomActive ? (
+                        <Check className="w-4 h-4 text-white drop-shadow-lg" />
+                    ) : (
+                        <Pencil className="w-4 h-4 text-white/80 drop-shadow-lg" />
+                    )}
+                    <span className="text-xs text-white/90 drop-shadow-md font-medium">Custom</span>
+                </div>
+            </button>
+
+
+            {showCustomGradient && (
+                <div className="col-span-2 space-y-3 mt-1 p-3 bg-secondary/50 rounded-lg border border-border/40">
+                    <div className="space-y-3">
+                        <div className="flex items-end gap-3">
+                            <div className="flex-1">
+                                <ColorSwatch
+                                    label="Color 1"
+                                    value={state.customGradient.color1}
+                                    onChange={handleColor1Change}
+                                />
+                            </div>
+                            <Button
+                                onClick={handleSaveClick}
+                                size="icon"
+                                variant="outline"
+                                className="w-8 h-8 flex-shrink-0"
+                                title="Save Theme"
+                            >
+                                <Save className="w-3.5 h-3.5" />
+                            </Button>
                         </div>
+                        <ColorSwatch
+                            label="Color 2"
+                            value={state.customGradient.color2}
+                            onChange={handleColor2Change}
+                        />
                     </div>
 
-                    {presetGradients.map((bg) => (
-                        <div key={bg.id} className="flex flex-col items-center gap-1 w-12">
-                            <button
-                                onClick={() => applyBackground(bg)}
-                                className={`mt-1 w-12 h-8 rounded-none transition-all flex-shrink-0 relative group ${state.background.id === bg.id
-                                    ? "ring-2 ring-primary/20"
-                                    : "hover:ring-1 hover:ring-muted"
-                                    }`}
-                                style={{ background: bg.value }}
-                                title={bg.name}
-                            >
-                                {state.background.id === bg.id && (
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <Check className="w-3 h-3 text-white drop-shadow-lg" />
-                                    </div>
-                                )}
-                                <div className="absolute inset-0 rounded-none bg-black opacity-0 group-hover:opacity-25 transition-opacity"></div>
-                            </button>
-                            <span className="text-xs text-muted-foreground text-center w-full">
-                                {bg.name}
-                            </span>
-                        </div>
-                    ))}
 
                     {customThemes.length > 0 && (
-                        <div className="border-l border-muted-foreground/20 h-14 mx-1" />
-                    )}
+                        <div className="space-y-2">
+                            <span className="text-xs font-medium text-foreground/80 mt-2 block">Saved Themes</span>
+                            <div className="grid grid-cols-4 md:grid-cols-3 gap-2 md:gap-3">
+                                {customThemes.map((theme) => {
+                                    const themeGradient = createGradientValue(theme.direction, theme.color1, theme.color2);
+                                    const isActive = state.background.id === "custom" && state.background.value === themeGradient;
+                                    
+                                    return (
+                                        <div key={theme.id} className="relative group/theme flex flex-col items-center gap-1 md:gap-1.5">
+                                            <button
+                                                onClick={() => applyTheme(theme)}
+                                                className="w-full flex flex-col items-center gap-1 md:gap-1.5 group"
+                                            >
+                                                <div
+                                                    className={`w-full rounded-lg transition-all ${
+                                                        isActive
+                                                            ? "bg-white shadow-md p-1"
+                                                            : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
+                                                    }`}
+                                                >
+                                                    <div
+                                                        className="w-full aspect-[5/3] md:aspect-[4/3] rounded-md relative overflow-hidden transition-all"
+                                                        style={{ background: themeGradient }}
+                                                        title={theme.name}
+                                                    >
+                                                        {isActive && (
+                                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                                <Check className="w-3 h-3 md:w-4 md:h-4 text-white drop-shadow-lg" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <span className="text-[10px] md:text-[11px] text-muted-foreground group-hover:text-foreground transition-colors text-center w-full block truncate">
+                                                    {theme.name}
+                                                </span>
+                                            </button>
 
-                    {customThemes.map((theme) => (
-                        <div key={theme.id} className="flex flex-col items-center gap-1 w-12">
-                            <div className="relative">
-                                <button
-                                    onClick={() => applyTheme(theme)}
-                                    className="mt-1 w-12 h-8 rounded-none transition-all flex-shrink-0 relative group hover:ring-1 hover:ring-muted"
-                                    style={{
-                                        background: createGradientValue(theme.direction, theme.color1, theme.color2),
-                                    }}
-                                    title={theme.name}
-                                >
-                                    <div className="absolute inset-0 rounded-none bg-black opacity-0 group-hover:opacity-25 transition-opacity"></div>
-                                </button>
-                                <Button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteClick(theme.id);
-                                    }}
-                                    size="icon"
-                                    variant="destructive"
-                                    className="absolute top-0 -right-1 w-4 h-4 rounded-full shadow-md z-10 cursor-pointer"
-                                    title="Delete Theme"
-                                >
-                                    <Trash2 className="size-[11px]" />
-                                </Button>
+                                            <Button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteClick(theme.id);
+                                                }}
+                                                size="icon"
+                                                variant="destructive"
+                                                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full shadow-md z-10 cursor-pointer opacity-0 group-hover/theme:opacity-100 transition-opacity"
+                                                title="Delete Theme"
+                                            >
+                                                <Trash2 className="size-[11px]" />
+                                            </Button>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                            <span className="text-xs text-muted-foreground text-center w-full truncate">
-                                {theme.name}
-                            </span>
                         </div>
-                    ))}
+                    )}
                 </div>
-            </div>
+            )}
 
             <Dialog open={showSaveDialog} onOpenChange={handleDialogClose}>
                 <DialogContent className="sm:max-w-[425px]">
@@ -422,6 +380,6 @@ export default function GradientControls({
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </>
     );
 }
