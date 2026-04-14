@@ -10,6 +10,8 @@ import {
   Layers,
   Palette,
   Move,
+  Redo2,
+  Undo2,
   Upload,
 } from "lucide-react";
 import About from "../components/About";
@@ -30,65 +32,73 @@ import ShadowControls from "../components/ShadowControls";
 import StylingControls from "../components/StylingControls";
 import WindowControls from "../components/WindowControls";
 import WindowStackComponent from "../components/WindowStackComponent";
+import CropTool from "../components/CropTool";
 import { BACKGROUNDS, FRAMES } from "../lib/data";
 import type { EditorState } from "../lib/types";
 import { exportImage as exportImageUtil, copyImage as copyImageUtil } from "../lib/imageExporter";
+import { useHistory } from "../lib/useHistory";
 
 type TabType = "background" | "styling" | "shadow" | "border" | "window";
+
+const INITIAL_STATE: EditorState = {
+  image: null,
+  frame: FRAMES[0],
+  background: BACKGROUNDS[0],
+  shadows: [
+    {
+      id: "1",
+      offsetX: 0,
+      offsetY: 20,
+      blur: 40,
+      spread: 0,
+      color: "#000000",
+      opacity: 0.3,
+      enabled: true,
+    },
+  ],
+  borderRadius: 12,
+  padding: 60,
+  scale: 1,
+  rotation: 0,
+  border: { width: 0, color: "#ffffff" },
+  stack: {
+    enabled: false,
+    count: 3,
+    offsetX: 0,
+    offsetY: -10,
+    scale: 0.95,
+    opacity: 0.5,
+    blur: 0,
+    effect: "default",
+  },
+  frameDarkMode: true,
+  customGradient: { color1: "#ff9a9e", color2: "#fecfef" },
+  gradientDirection: 135,
+  address: "https://screenpastel.vercel.app",
+  backgroundTintColor: "#000000",
+  backgroundTintOpacity: 0,
+  backgroundBlur: 0,
+  positionX: 0,
+  positionY: 0,
+  aspectRatio: "auto",
+};
 
 export default function ScreenshotEditor() {
   const [activeTab, setActiveTab] = useState<TabType | null>("background");
   const [copyMessage, setCopyMessage] = useState<string>("");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [state, setState] = useState<EditorState>({
-    image: null,
-    frame: FRAMES[0],
-    background: BACKGROUNDS[0],
-    shadows: [
-      {
-        id: "1",
-        offsetX: 0,
-        offsetY: 20,
-        blur: 40,
-        spread: 0,
-        color: "#000000",
-        opacity: 0.3,
-        enabled: true,
-      },
-    ],
-    borderRadius: 12,
-    padding: 60,
-    scale: 1,
-    rotation: 0,
-    border: { width: 0, color: "#ffffff" },
-    stack: {
-      enabled: false,
-      count: 3,
-      offsetX: 0,
-      offsetY: -10,
-      scale: 0.95,
-      opacity: 0.5,
-      blur: 0,
-      effect: "default",
-    },
-    frameDarkMode: true,
-    customGradient: { color1: "#ff9a9e", color2: "#fecfef" },
-    gradientDirection: 135,
-    address: "https://screenpastel.vercel.app",
-    backgroundTintColor: "#000000",
-    backgroundTintOpacity: 0,
-    backgroundBlur: 0,
-    positionX: 0,
-    positionY: 0,
-    aspectRatio: "auto",
-  });
+  const [showCropTool, setShowCropTool] = useState(false);
+  const { state, setState, commit, undo, redo, canUndo, canRedo, resetHistory } = useHistory(INITIAL_STATE);
 
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
+  const dragInitialState = useRef<EditorState | null>(null);
   const isScaling = useRef(false);
   const scaleStart = useRef({ centerX: 0, centerY: 0, initialDistance: 0, initialScale: 1 });
+  const scaleInitialState = useRef<EditorState | null>(null);
   const isRotating = useRef(false);
   const rotateStart = useRef({ centerX: 0, centerY: 0, initialAngle: 0, initialRotation: 0 });
+  const rotateInitialState = useRef<EditorState | null>(null);
   const [showGuides, setShowGuides] = useState({ x: false, y: false });
 
   const DRAG_SNAP_THRESHOLD = 6;
@@ -128,7 +138,6 @@ export default function ScreenshotEditor() {
         const dy = e.clientY - centerY;
         const currentAngle = Math.atan2(dy, dx) * (180 / Math.PI);
         let newRotation = initialRotation + (currentAngle - initialAngle);
-        // Snap rotation
         let didSnap: number | null = null;
         for (const snap of ROTATION_SNAP_POINTS) {
           if (Math.abs(newRotation - snap) <= ROTATION_SNAP_THRESHOLD) {
@@ -148,9 +157,23 @@ export default function ScreenshotEditor() {
     const handleMouseUp = () => {
       if (isDragging.current) {
         setShowGuides({ x: false, y: false });
+        if (dragInitialState.current) {
+          commit((prev) => prev);
+          dragInitialState.current = null;
+        }
       }
       if (isRotating.current) {
         setSnappedAngle(null);
+        if (rotateInitialState.current) {
+          commit((prev) => prev);
+          rotateInitialState.current = null;
+        }
+      }
+      if (isScaling.current) {
+        if (scaleInitialState.current) {
+          commit((prev) => prev);
+          scaleInitialState.current = null;
+        }
       }
       isDragging.current = false;
       if (isScaling.current) {
@@ -179,7 +202,7 @@ export default function ScreenshotEditor() {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setState((prev) => ({ ...prev, image: e.target?.result as string }));
+        resetHistory({ ...INITIAL_STATE, image: e.target?.result as string });
       };
       reader.readAsDataURL(file);
     }
@@ -195,10 +218,7 @@ export default function ScreenshotEditor() {
         if (file) {
           const reader = new FileReader();
           reader.onload = (e) => {
-            setState((prev) => ({
-              ...prev,
-              image: e.target?.result as string,
-            }));
+            resetHistory({ ...INITIAL_STATE, image: e.target?.result as string });
           };
           reader.readAsDataURL(file);
         }
@@ -214,7 +234,14 @@ export default function ScreenshotEditor() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {
-        if (e.key === 'c' || e.key === 'C') {
+        if (e.key === 'z' || e.key === 'Z') {
+          e.preventDefault();
+          if (e.shiftKey) {
+            redo();
+          } else {
+            undo();
+          }
+        } else if (e.key === 'c' || e.key === 'C') {
           e.preventDefault();
           if (state.image) {
             copyImage();
@@ -230,7 +257,7 @@ export default function ScreenshotEditor() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [state.image]);
+  }, [state.image, undo, redo]);
 
   const handleNewUploadClick = () => {
     if (state.image) {
@@ -281,15 +308,15 @@ export default function ScreenshotEditor() {
 
     switch (activeTab) {
       case "background":
-        return <BackgroundControls state={state} setState={setState} />;
+        return <BackgroundControls state={state} setState={setState} commit={commit} />;
       case "styling":
-        return <StylingControls state={state} setState={setState} />;
+        return <StylingControls state={state} setState={setState} commit={commit} onCropClick={() => setShowCropTool(true)} isCropDisabled={!state.image} />;
       case "shadow":
-        return <ShadowControls state={state} setState={setState} />;
+        return <ShadowControls state={state} setState={setState} commit={commit} />;
       case "border":
-        return <BorderControls state={state} setState={setState} />;
+        return <BorderControls state={state} setState={setState} commit={commit} />;
       case "window":
-        return <WindowControls state={state} setState={setState} />;
+        return <WindowControls state={state} setState={setState} commit={commit} />;
       default:
         return null;
     }
@@ -321,6 +348,7 @@ export default function ScreenshotEditor() {
           onMouseDown={(e) => {
             e.preventDefault();
             isDragging.current = true;
+            dragInitialState.current = state;
             dragStart.current = {
               x: e.clientX - state.positionX,
               y: e.clientY - state.positionY,
@@ -364,6 +392,7 @@ export default function ScreenshotEditor() {
               e.preventDefault();
               e.stopPropagation();
               isScaling.current = true;
+              scaleInitialState.current = state;
               const container = (e.target as HTMLElement).closest('[data-transform-container]');
               if (container) {
                 const rect = container.getBoundingClientRect();
@@ -380,6 +409,7 @@ export default function ScreenshotEditor() {
               e.preventDefault();
               e.stopPropagation();
               isRotating.current = true;
+              rotateInitialState.current = state;
               const container = (e.target as HTMLElement).closest('[data-transform-container]');
               if (container) {
                 const rect = container.getBoundingClientRect();
@@ -463,6 +493,25 @@ export default function ScreenshotEditor() {
 
             <div className="flex items-center gap-1 sm:gap-2">
               <About />
+              <div className="h-4 w-px bg-border mx-1" />
+              <Button
+                variant="ghost"
+                onClick={undo}
+                disabled={!canUndo}
+                className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-muted-foreground/40 px-2"
+                title="Undo (Ctrl+Z)"
+              >
+                <Undo2 className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={redo}
+                disabled={!canRedo}
+                className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-muted-foreground/40 px-2"
+                title="Redo (Ctrl+Shift+Z)"
+              >
+                <Redo2 className="w-4 h-4" />
+              </Button>
               <div className="h-4 w-px bg-border mx-1" />
               <input
                 ref={fileInputRef}
@@ -556,6 +605,17 @@ export default function ScreenshotEditor() {
         </div>
       </div>
 
+      {showCropTool && state.image && (
+        <CropTool
+          imageSrc={state.image}
+          onApply={(croppedImage) => {
+            commit((prev) => ({ ...prev, image: croppedImage }));
+            setShowCropTool(false);
+          }}
+          onCancel={() => setShowCropTool(false)}
+        />
+      )}
+
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent>
           <DialogHeader>
@@ -569,7 +629,7 @@ export default function ScreenshotEditor() {
               Cancel
             </Button>
             <Button onClick={() => {
-              setState(prev => ({ ...prev, image: null }));
+              resetHistory(INITIAL_STATE);
               setShowConfirmDialog(false);
             }}>
               Remove

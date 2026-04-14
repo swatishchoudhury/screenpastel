@@ -15,6 +15,7 @@ const Slider = ({
   label,
   value,
   onChange,
+  onCommit,
   min,
   max,
   step = 1,
@@ -25,6 +26,7 @@ const Slider = ({
   label: string;
   value: number;
   onChange: (v: number) => void;
+  onCommit?: (v: number) => void;
   min: number;
   max: number;
   step?: number;
@@ -46,7 +48,9 @@ const Slider = ({
     if (!isNaN(parsed)) {
       const clamped = Math.min(max, Math.max(min, parsed));
       const precision = step < 1 ? String(step).split(".")[1]?.length || 0 : 0;
-      onChange(Number(clamped.toFixed(precision)));
+      const final = Number(clamped.toFixed(precision));
+      onChange(final);
+      onCommit?.(final);
     }
     setInputValue(String(value));
     setIsFocused(false);
@@ -96,6 +100,7 @@ const Slider = ({
       <UI_Slider
         value={[value]}
         onValueChange={(v) => snappedOnChange(v[0])}
+        onValueCommit={(v) => onCommit?.(applySnap(v[0], snapPoints, snapThreshold))}
         min={min}
         max={max}
         step={step}

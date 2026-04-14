@@ -9,9 +9,11 @@ import ColorSwatch from "./ColorSwatch";
 export default function ShadowControls({
   state,
   setState,
+  commit,
 }: {
   state: EditorState;
   setState: React.Dispatch<React.SetStateAction<EditorState>>;
+  commit: (update: EditorState | ((prev: EditorState) => EditorState)) => void;
 }) {
   return (
     <div className="space-y-6">
@@ -23,6 +25,12 @@ export default function ShadowControls({
             value={state.shadows[0].offsetX}
             onChange={(v: number) =>
               setState((prev) => ({
+                ...prev,
+                shadows: [{ ...prev.shadows[0], offsetX: v }],
+              }))
+            }
+            onCommit={(v: number) =>
+              commit((prev) => ({
                 ...prev,
                 shadows: [{ ...prev.shadows[0], offsetX: v }],
               }))
@@ -40,6 +48,12 @@ export default function ShadowControls({
                 shadows: [{ ...prev.shadows[0], offsetY: v }],
               }))
             }
+            onCommit={(v: number) =>
+              commit((prev) => ({
+                ...prev,
+                shadows: [{ ...prev.shadows[0], offsetY: v }],
+              }))
+            }
             min={-100}
             max={100}
             unit="px"
@@ -49,6 +63,12 @@ export default function ShadowControls({
             value={state.shadows[0].blur}
             onChange={(v: number) =>
               setState((prev) => ({
+                ...prev,
+                shadows: [{ ...prev.shadows[0], blur: v }],
+              }))
+            }
+            onCommit={(v: number) =>
+              commit((prev) => ({
                 ...prev,
                 shadows: [{ ...prev.shadows[0], blur: v }],
               }))
@@ -72,6 +92,12 @@ export default function ShadowControls({
                 shadows: [{ ...prev.shadows[0], opacity: v }],
               }))
             }
+            onCommit={(v: number) =>
+              commit((prev) => ({
+                ...prev,
+                shadows: [{ ...prev.shadows[0], opacity: v }],
+              }))
+            }
             min={0}
             max={1}
             step={0.01}
@@ -80,7 +106,7 @@ export default function ShadowControls({
               label="Shadow Color"
               value={state.shadows[0].color}
               onChange={(color) =>
-                setState((prev) => ({
+                commit((prev) => ({
                   ...prev,
                   shadows: [{ ...prev.shadows[0], color }],
                 }))

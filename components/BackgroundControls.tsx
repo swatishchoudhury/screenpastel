@@ -11,9 +11,11 @@ import { BACKGROUNDS } from "../lib/data";
 export default function BackgroundControls({
     state,
     setState,
+    commit,
 }: {
     state: EditorState;
     setState: React.Dispatch<React.SetStateAction<EditorState>>;
+    commit: (update: EditorState | ((prev: EditorState) => EditorState)) => void;
 }) {
     const imageInputRef = useRef<HTMLInputElement>(null);
     const [solidColor, setSolidColor] = useState("#4A90D9");
@@ -27,7 +29,7 @@ export default function BackgroundControls({
             const reader = new FileReader();
             reader.onload = (event) => {
                 const imageUrl = event.target?.result as string;
-                setState((prev) => ({
+                commit((prev) => ({
                     ...prev,
                     background: {
                         id: "custom-image",
@@ -49,7 +51,7 @@ export default function BackgroundControls({
                 direction = parseInt(match[1], 10);
             }
         }
-        setState((prev) => ({
+        commit((prev) => ({
             ...prev,
             background: bg,
             gradientDirection: direction,
@@ -58,7 +60,7 @@ export default function BackgroundControls({
 
     const applySolidColor = (color: string) => {
         setSolidColor(color);
-        setState((prev) => ({
+        commit((prev) => ({
             ...prev,
             background: {
                 id: "custom-solid",
@@ -93,7 +95,7 @@ export default function BackgroundControls({
                     )}
                 </button>
 
-                <GradientControls state={state} setState={setState} />
+                <GradientControls state={state} setState={setState} commit={commit} />
             </div>
 
             <input
@@ -218,6 +220,9 @@ export default function BackgroundControls({
                         onChange={(v: number) =>
                             setState((prev) => ({ ...prev, backgroundBlur: v }))
                         }
+                        onCommit={(v: number) =>
+                            commit((prev) => ({ ...prev, backgroundBlur: v }))
+                        }
                         min={0}
                         max={50}
                         unit="px"
@@ -229,6 +234,31 @@ export default function BackgroundControls({
                             value={state.gradientDirection}
                             onChange={(v: number) =>
                                 setState((prev) => {
+                                    const newDirection = v;
+                                    let updatedBackground = prev.background;
+
+                                    if (prev.background.type === "gradient") {
+                                        const match = prev.background.value.match(
+                                            /linear-gradient\(\d+deg, (.+)\)/,
+                                        );
+                                        if (match) {
+                                            const colors = match[1];
+                                            updatedBackground = {
+                                                ...prev.background,
+                                                value: `linear-gradient(${newDirection}deg, ${colors})`,
+                                            };
+                                        }
+                                    }
+
+                                    return {
+                                        ...prev,
+                                        gradientDirection: newDirection,
+                                        background: updatedBackground,
+                                    };
+                                })
+                            }
+                            onCommit={(v: number) =>
+                                commit((prev) => {
                                     const newDirection = v;
                                     let updatedBackground = prev.background;
 
@@ -268,6 +298,7 @@ export default function BackgroundControls({
                         label="Opacity"
                         value={state.backgroundTintOpacity}
                         onChange={(v: number) => setState((prev) => ({ ...prev, backgroundTintOpacity: v }))}
+                        onCommit={(v: number) => commit((prev) => ({ ...prev, backgroundTintOpacity: v }))}
                         min={0}
                         max={1}
                         step={0.01}
@@ -276,7 +307,7 @@ export default function BackgroundControls({
                         label="Tint Color"
                         value={state.backgroundTintColor}
                         onChange={(color) =>
-                            setState((prev) => ({ ...prev, backgroundTintColor: color }))
+                            commit((prev) => ({ ...prev, backgroundTintColor: color }))
                         }
                     />
                 </div>

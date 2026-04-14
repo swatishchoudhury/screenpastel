@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Crop, ChevronDown } from "lucide-react";
 import type { EditorState } from "../lib/types";
 import Slider from "./Slider";
 
@@ -22,15 +23,31 @@ const aspectRatios = [
 export default function StylingControls({
   state,
   setState,
+  commit,
+  onCropClick,
+  isCropDisabled,
 }: {
   state: EditorState;
   setState: React.Dispatch<React.SetStateAction<EditorState>>;
+  commit: (update: EditorState | ((prev: EditorState) => EditorState)) => void;
+  onCropClick: () => void;
+  isCropDisabled: boolean;
 }) {
   return (
     <div className="space-y-6">
       <div className="space-y-3">
         <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">Dimensions & Size</h3>
         <div className="grid grid-cols-1 gap-4 pt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onCropClick}
+            disabled={isCropDisabled}
+            className="w-full justify-center gap-2 bg-secondary/50 backdrop-blur-sm border-border/50 hover:bg-accent/80 text-xs"
+          >
+            <Crop className="w-3.5 h-3.5" />
+            Crop Image
+          </Button>
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">Aspect Ratio</Label>
             <DropdownMenu>
@@ -40,13 +57,14 @@ export default function StylingControls({
                   className="w-full justify-between bg-secondary/50 backdrop-blur-sm border-border/50 hover:bg-accent/80"
                 >
                   {aspectRatios.find(r => r.value === state.aspectRatio)?.label || "Auto"}
+                  <ChevronDown className="w-4 h-4 ml-auto opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-[180px]">
                 {aspectRatios.map((ratio) => (
                   <DropdownMenuItem
                     key={ratio.value}
-                    onClick={() => setState((prev) => ({ ...prev, aspectRatio: ratio.value }))}
+                    onClick={() => commit((prev) => ({ ...prev, aspectRatio: ratio.value }))}
                   >
                     {ratio.label}
                   </DropdownMenuItem>
@@ -58,6 +76,7 @@ export default function StylingControls({
             label="Scale"
             value={state.scale}
             onChange={(v: number) => setState((prev) => ({ ...prev, scale: v }))}
+            onCommit={(v: number) => commit((prev) => ({ ...prev, scale: v }))}
             min={0.5}
             max={1.5}
             step={0.01}
@@ -68,6 +87,7 @@ export default function StylingControls({
             label="Padding"
             value={state.padding}
             onChange={(v: number) => setState((prev) => ({ ...prev, padding: v }))}
+            onCommit={(v: number) => commit((prev) => ({ ...prev, padding: v }))}
             min={0}
             max={200}
             unit="px"
@@ -84,6 +104,7 @@ export default function StylingControls({
             label="Position X"
             value={state.positionX}
             onChange={(v: number) => setState((prev) => ({ ...prev, positionX: v }))}
+            onCommit={(v: number) => commit((prev) => ({ ...prev, positionX: v }))}
             min={-1000}
             max={1000}
             unit="px"
@@ -94,6 +115,7 @@ export default function StylingControls({
             label="Position Y"
             value={state.positionY}
             onChange={(v: number) => setState((prev) => ({ ...prev, positionY: v }))}
+            onCommit={(v: number) => commit((prev) => ({ ...prev, positionY: v }))}
             min={-1000}
             max={1000}
             unit="px"
@@ -104,6 +126,7 @@ export default function StylingControls({
             label="Rotation"
             value={state.rotation}
             onChange={(v: number) => setState((prev) => ({ ...prev, rotation: v }))}
+            onCommit={(v: number) => commit((prev) => ({ ...prev, rotation: v }))}
             min={-360}
             max={360}
             unit="°"

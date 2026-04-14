@@ -35,6 +35,14 @@ export default function About() {
                 <div className="space-y-4 pt-1">
                     <div className="space-y-2">
                         <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Undo</span>
+                            <kbd className="px-2 py-0.5 bg-muted rounded text-xs font-mono">Ctrl+Z</kbd>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Redo</span>
+                            <kbd className="px-2 py-0.5 bg-muted rounded text-xs font-mono">Ctrl+Shift+Z</kbd>
+                        </div>
+                        <div className="flex justify-between items-center">
                             <span className="text-sm text-muted-foreground">Copy Image</span>
                             <kbd className="px-2 py-0.5 bg-muted rounded text-xs font-mono">Ctrl+C</kbd>
                         </div>

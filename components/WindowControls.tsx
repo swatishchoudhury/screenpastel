@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { ChevronDown } from "lucide-react";
 import { FRAMES } from "../lib/data";
 import type { EditorState } from "../lib/types";
 import Slider from "./Slider";
@@ -17,9 +18,11 @@ import Slider from "./Slider";
 export default function WindowControls({
   state,
   setState,
+  commit,
 }: {
   state: EditorState;
   setState: React.Dispatch<React.SetStateAction<EditorState>>;
+  commit: (update: EditorState | ((prev: EditorState) => EditorState)) => void;
 }) {
   return (
     <div className="space-y-6">
@@ -35,13 +38,14 @@ export default function WindowControls({
                   className="w-full justify-between bg-secondary/50 backdrop-blur-sm border-border/50 hover:bg-accent/80"
                 >
                   {state.frame.name}
+                  <ChevronDown className="w-4 h-4 ml-auto opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-[180px]">
                 {FRAMES.map((frame) => (
                   <DropdownMenuItem
                     key={frame.id}
-                    onClick={() => setState((prev) => ({ ...prev, frame }))}
+                    onClick={() => commit((prev) => ({ ...prev, frame }))}
                   >
                     {frame.name}
                   </DropdownMenuItem>
@@ -58,6 +62,9 @@ export default function WindowControls({
                 onChange={(e) =>
                   setState((prev) => ({ ...prev, address: e.target.value }))
                 }
+                onBlur={(e) =>
+                  commit((prev) => ({ ...prev, address: e.target.value }))
+                }
                 className="w-full px-3 py-2 bg-secondary border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
@@ -68,7 +75,7 @@ export default function WindowControls({
                 id="frame-dark-mode"
                 checked={state.frameDarkMode}
                 onCheckedChange={(checked) =>
-                  setState((prev) => ({ ...prev, frameDarkMode: checked }))
+                  commit((prev) => ({ ...prev, frameDarkMode: checked }))
                 }
               />
               <Label
@@ -90,7 +97,7 @@ export default function WindowControls({
               id="stack-enabled"
               checked={state.stack.enabled}
               onCheckedChange={(checked) =>
-                setState((prev) => ({
+                commit((prev) => ({
                   ...prev,
                   stack: { ...prev.stack, enabled: checked },
                 }))
@@ -111,12 +118,13 @@ export default function WindowControls({
                       className="w-full justify-between bg-secondary/50 backdrop-blur-sm border-border/50 hover:bg-accent/80"
                     >
                       {state.stack.effect === "default" ? "Default" : "Silhouette"}
+                      <ChevronDown className="w-4 h-4 ml-auto opacity-50" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-[140px]">
                     <DropdownMenuItem
                       onClick={() =>
-                        setState((prev) => ({
+                        commit((prev) => ({
                           ...prev,
                           stack: { ...prev.stack, effect: "default" },
                         }))
@@ -126,7 +134,7 @@ export default function WindowControls({
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() =>
-                        setState((prev) => ({
+                        commit((prev) => ({
                           ...prev,
                           stack: { ...prev.stack, effect: "silhouette" },
                         }))
@@ -146,6 +154,12 @@ export default function WindowControls({
                     stack: { ...prev.stack, count: v },
                   }))
                 }
+                onCommit={(v: number) =>
+                  commit((prev) => ({
+                    ...prev,
+                    stack: { ...prev.stack, count: v },
+                  }))
+                }
                 min={2}
                 max={5}
               />
@@ -154,6 +168,12 @@ export default function WindowControls({
                 value={state.stack.scale}
                 onChange={(v: number) =>
                   setState((prev) => ({
+                    ...prev,
+                    stack: { ...prev.stack, scale: v },
+                  }))
+                }
+                onCommit={(v: number) =>
+                  commit((prev) => ({
                     ...prev,
                     stack: { ...prev.stack, scale: v },
                   }))
@@ -171,6 +191,12 @@ export default function WindowControls({
                     stack: { ...prev.stack, offsetX: v },
                   }))
                 }
+                onCommit={(v: number) =>
+                  commit((prev) => ({
+                    ...prev,
+                    stack: { ...prev.stack, offsetX: v },
+                  }))
+                }
                 min={-30}
                 max={30}
                 unit="px"
@@ -180,6 +206,12 @@ export default function WindowControls({
                 value={state.stack.offsetY}
                 onChange={(v: number) =>
                   setState((prev) => ({
+                    ...prev,
+                    stack: { ...prev.stack, offsetY: v },
+                  }))
+                }
+                onCommit={(v: number) =>
+                  commit((prev) => ({
                     ...prev,
                     stack: { ...prev.stack, offsetY: v },
                   }))

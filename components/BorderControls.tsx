@@ -9,9 +9,11 @@ import ColorSwatch from "./ColorSwatch";
 export default function BorderControls({
   state,
   setState,
+  commit,
 }: {
   state: EditorState;
   setState: React.Dispatch<React.SetStateAction<EditorState>>;
+  commit: (update: EditorState | ((prev: EditorState) => EditorState)) => void;
 }) {
   return (
     <div className="space-y-6">
@@ -27,6 +29,12 @@ export default function BorderControls({
                 border: { ...prev.border, width: v },
               }))
             }
+            onCommit={(v: number) =>
+              commit((prev) => ({
+                ...prev,
+                border: { ...prev.border, width: v },
+              }))
+            }
             min={0}
             max={20}
             unit="px"
@@ -35,7 +43,7 @@ export default function BorderControls({
               label="Border Color"
               value={state.border.color}
               onChange={(color) =>
-                setState((prev) => ({
+                commit((prev) => ({
                   ...prev,
                   border: { ...prev.border, color },
                 }))
@@ -46,6 +54,9 @@ export default function BorderControls({
             value={state.borderRadius}
             onChange={(v: number) =>
               setState((prev) => ({ ...prev, borderRadius: v }))
+            }
+            onCommit={(v: number) =>
+              commit((prev) => ({ ...prev, borderRadius: v }))
             }
             min={0}
             max={40}
