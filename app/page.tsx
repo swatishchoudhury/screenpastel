@@ -8,16 +8,20 @@ import {
   Download,
   Frame,
   Layers,
+  Loader2,
   Palette,
   Move,
   Redo2,
   Undo2,
   Upload,
+  Minus,
+  Plus,
 } from "lucide-react";
 import About from "../components/About";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import {
   Dialog,
   DialogContent,
@@ -84,10 +88,30 @@ const INITIAL_STATE: EditorState = {
 };
 
 export default function ScreenshotEditor() {
-  const [activeTab, setActiveTab] = useState<TabType | null>("background");
+  const [activeTab, setActiveTab] = useState<TabType | null>(null);
+
+  useEffect(() => {
+    if (window.innerWidth >= 768) {
+      setActiveTab("background");
+    }
+  }, []);
+
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [copyMessage, setCopyMessage] = useState<string>("");
+  const [isCopying, setIsCopying] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showCropTool, setShowCropTool] = useState(false);
+
+  const [canvasZoom, _setCanvasZoom] = useState(1);
+  const canvasZoomRef = useRef(1);
+  const setCanvasZoom = (val: number | ((prev: number) => number)) => {
+    _setCanvasZoom(prev => {
+      const next = typeof val === 'function' ? val(prev) : val;
+      canvasZoomRef.current = next;
+      return next;
+    });
+  };
+
   const { state, setState, commit, undo, redo, canUndo, canRedo, resetHistory } = useHistory(INITIAL_STATE);
 
   const isDragging = useRef(false);
@@ -107,10 +131,10 @@ export default function ScreenshotEditor() {
   const [snappedAngle, setSnappedAngle] = useState<number | null>(null);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
       if (isDragging.current) {
-        let newX = e.clientX - dragStart.current.x;
-        let newY = e.clientY - dragStart.current.y;
+        let newX = (e.clientX - dragStart.current.x) / canvasZoomRef.current;
+        let newY = (e.clientY - dragStart.current.y) / canvasZoomRef.current;
         const snappedX = Math.abs(newX) <= DRAG_SNAP_THRESHOLD;
         const snappedY = Math.abs(newY) <= DRAG_SNAP_THRESHOLD;
         if (snappedX) newX = 0;
@@ -154,7 +178,7 @@ export default function ScreenshotEditor() {
       }
     };
 
-    const handleMouseUp = () => {
+    const handlePointerUp = () => {
       if (isDragging.current) {
         setShowGuides({ x: false, y: false });
         if (dragInitialState.current) {
@@ -186,15 +210,18 @@ export default function ScreenshotEditor() {
       }
     };
 
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("pointermove", handlePointerMove);
+    document.addEventListener("pointerup", handlePointerUp);
+    document.addEventListener("pointercancel", handlePointerUp);
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("pointermove", handlePointerMove);
+      document.removeEventListener("pointerup", handlePointerUp);
+      document.removeEventListener("pointercancel", handlePointerUp);
     };
   }, []);
 
-  const canvasRef = useRef<HTMLDivElement>(null);
+  const desktopCanvasRef = useRef<HTMLDivElement>(null);
+  const mobileCanvasRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -232,6 +259,58 @@ export default function ScreenshotEditor() {
   }, []);
 
   useEffect(() => {
+    let dragCounter = 0;
+
+    const handleDragEnter = (e: DragEvent) => {
+      e.preventDefault();
+      if (e.dataTransfer?.items && Array.from(e.dataTransfer.items).some(item => item.type.startsWith('image/'))) {
+        dragCounter++;
+        setIsDraggingFile(true);
+      }
+    };
+
+    const handleDragLeave = (e: DragEvent) => {
+      e.preventDefault();
+      dragCounter--;
+      if (dragCounter <= 0) {
+        dragCounter = 0;
+        setIsDraggingFile(false);
+      }
+    };
+
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault();
+    };
+
+    const handleDrop = (e: DragEvent) => {
+      e.preventDefault();
+      dragCounter = 0;
+      setIsDraggingFile(false);
+
+      const file = e.dataTransfer?.files?.[0];
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          resetHistory({ ...INITIAL_STATE, image: event.target?.result as string });
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    document.addEventListener("dragenter", handleDragEnter);
+    document.addEventListener("dragleave", handleDragLeave);
+    document.addEventListener("dragover", handleDragOver);
+    document.addEventListener("drop", handleDrop);
+
+    return () => {
+      document.removeEventListener("dragenter", handleDragEnter);
+      document.removeEventListener("dragleave", handleDragLeave);
+      document.removeEventListener("dragover", handleDragOver);
+      document.removeEventListener("drop", handleDrop);
+    };
+  }, [resetHistory]);
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 'z' || e.key === 'Z') {
@@ -253,6 +332,14 @@ export default function ScreenshotEditor() {
           }
         }
       }
+
+      if (e.key === '+' || e.key === '=') {
+        e.preventDefault();
+        setCanvasZoom(z => Math.min(3, z + 0.1));
+      } else if (e.key === '-' || e.key === '_') {
+        e.preventDefault();
+        setCanvasZoom(z => Math.max(0.1, z - 0.1));
+      }
     };
 
     document.addEventListener("keydown", handleKeyDown);
@@ -268,14 +355,20 @@ export default function ScreenshotEditor() {
   };
 
   const exportImage = async () => {
-    if (canvasRef.current) {
-      exportImageUtil(canvasRef.current);
+    const activeCanvas = desktopCanvasRef.current?.offsetParent ? desktopCanvasRef.current : mobileCanvasRef.current;
+    if (activeCanvas) {
+      exportImageUtil(activeCanvas);
     }
   };
 
   const copyImage = async () => {
-    if (canvasRef.current) {
-      const success = await copyImageUtil(canvasRef.current);
+    if (isCopying) return;
+    const activeCanvas = desktopCanvasRef.current?.offsetParent ? desktopCanvasRef.current : mobileCanvasRef.current;
+    if (activeCanvas) {
+      setIsCopying(true);
+      setCopyMessage("Copying...");
+      const success = await copyImageUtil(activeCanvas);
+      setIsCopying(false);
       setCopyMessage(success ? "Copied!" : "Failed!");
       setTimeout(() => setCopyMessage(""), 2000);
     }
@@ -322,16 +415,17 @@ export default function ScreenshotEditor() {
     }
   };
 
-  const renderCanvas = () => (
+  const renderCanvas = (ref: React.RefObject<HTMLDivElement | null>) => (
     <>
       {!state.image ? (
         <div
-          className="text-center text-muted-foreground cursor-pointer hover:bg-accent/20 rounded-lg p-8 transition-colors"
+          className={`text-center text-muted-foreground cursor-pointer rounded-xl p-8 transition-all duration-200 ${isDraggingFile ? "bg-primary/5 border-2 border-dashed border-primary scale-105" : "hover:bg-accent/20"
+            }`}
           onClick={() => fileInputRef.current?.click()}
         >
-          <Upload className="w-16 h-16 mx-auto mb-4 opacity-30" />
-          <p className="text-lg">
-            Upload or paste an image to get started
+          <Upload className={`w-16 h-16 mx-auto mb-4 ${isDraggingFile ? 'text-primary animate-bounce opacity-100' : 'opacity-30'}`} />
+          <p className={`text-lg font-medium ${isDraggingFile ? 'text-primary' : ''}`}>
+            {isDraggingFile ? "Drop image here" : "Upload, paste or drop an image to get started"}
           </p>
           <p className="text-sm mt-2 text-muted-foreground/60">
             Shortcuts: Ctrl+C (Copy), Ctrl+S (Export), Ctrl+V (Paste)
@@ -339,19 +433,20 @@ export default function ScreenshotEditor() {
         </div>
       ) : (
         <div
-          ref={canvasRef}
+          ref={ref}
+          className={`relative overflow-hidden flex items-center justify-center select-none ${state.aspectRatio === "auto" ? "" : "w-[800px] max-w-full"}`}
           style={{
             padding: `${state.padding}px`,
-            aspectRatio: state.aspectRatio === "auto" ? "auto" : state.aspectRatio.replace(":", "/")
+            aspectRatio: state.aspectRatio === "auto" ? "auto" : state.aspectRatio.replace(":", "/"),
+            touchAction: 'none'
           }}
-          className={`relative overflow-hidden flex items-center justify-center select-none ${state.aspectRatio === "auto" ? "" : "w-[800px] max-w-full"}`}
-          onMouseDown={(e) => {
+          onPointerDown={(e) => {
             e.preventDefault();
             isDragging.current = true;
             dragInitialState.current = state;
             dragStart.current = {
-              x: e.clientX - state.positionX,
-              y: e.clientY - state.positionY,
+              x: e.clientX - state.positionX * canvasZoomRef.current,
+              y: e.clientY - state.positionY * canvasZoomRef.current,
             };
           }}
         >
@@ -388,7 +483,7 @@ export default function ScreenshotEditor() {
             shadowString={shadowString}
             positionX={state.positionX}
             positionY={state.positionY}
-            onScaleStart={(e: React.MouseEvent<HTMLDivElement>) => {
+            onScaleStart={(e: React.PointerEvent<HTMLDivElement>) => {
               e.preventDefault();
               e.stopPropagation();
               isScaling.current = true;
@@ -405,7 +500,7 @@ export default function ScreenshotEditor() {
               }
               document.body.style.cursor = 'nwse-resize';
             }}
-            onRotateStart={(e: React.MouseEvent<HTMLDivElement>) => {
+            onRotateStart={(e: React.PointerEvent<HTMLDivElement>) => {
               e.preventDefault();
               e.stopPropagation();
               isRotating.current = true;
@@ -531,10 +626,12 @@ export default function ScreenshotEditor() {
               <Button
                 variant="ghost"
                 onClick={copyImage}
-                disabled={!state.image}
+                disabled={!state.image || isCopying}
                 className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-muted-foreground px-2 sm:px-3"
               >
-                {copyMessage === "Copied!" ? (
+                {isCopying ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : copyMessage === "Copied!" ? (
                   <Check className="w-4 h-4" />
                 ) : copyMessage === "Failed!" ? (
                   <AlertTriangle className="w-4 h-4 text-red-500" />
@@ -578,17 +675,70 @@ export default function ScreenshotEditor() {
           </aside>
 
 
-          <main className="flex-1 p-8 flex items-center justify-center bg-background/50 backdrop-blur-sm overflow-hidden">
-            <div className="transition-transform duration-200 origin-center">
-              {renderCanvas()}
+          <main className="flex-1 p-8 flex items-center justify-center bg-background/50 backdrop-blur-sm relative overflow-hidden">
+            <div
+              className="origin-center"
+              style={{ transform: state.image ? `scale(${canvasZoom})` : 'none' }}
+            >
+              {renderCanvas(desktopCanvasRef)}
+            </div>
+
+            <div className="absolute bottom-6 right-6 z-50 flex items-center gap-3 bg-background/80 backdrop-blur-md px-4 py-2 rounded-full border border-border/50 shadow-lg select-none">
+              <button
+                onClick={() => setCanvasZoom(z => Math.max(0.1, z - 0.1))}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                title="Zoom Out"
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <Slider
+                value={[canvasZoom * 100]}
+                onValueChange={(val) => setCanvasZoom(val[0] / 100)}
+                min={10}
+                max={300}
+                step={1}
+                className="w-24"
+              />
+              <button
+                onClick={() => setCanvasZoom(z => Math.min(3, z + 0.1))}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                title="Zoom In"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+              <span
+                className="text-xs font-medium w-10 text-right cursor-pointer hover:text-primary transition-colors"
+                onClick={() => setCanvasZoom(1)}
+                title="Reset zoom"
+              >
+                {Math.round(canvasZoom * 100)}%
+              </span>
             </div>
           </main>
         </div>
 
 
-        <main className="md:hidden flex-1 p-2 pb-36 flex items-center justify-center bg-background/50 backdrop-blur-sm overflow-hidden">
-          <div className="transform scale-75 transition-transform duration-200 origin-center">
-            {renderCanvas()}
+        <main className="md:hidden flex-1 p-2 pb-36 flex items-center justify-center bg-background/50 backdrop-blur-sm relative overflow-hidden">
+          <div
+            className="origin-center"
+            style={{ transform: state.image ? `scale(${canvasZoom * 0.75})` : 'none' }}
+          >
+            {renderCanvas(mobileCanvasRef)}
+          </div>
+
+          <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-background/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-border/50 shadow-lg select-none">
+            <button onClick={() => setCanvasZoom(z => Math.max(0.1, z - 0.1))} className="text-muted-foreground hover:text-foreground">
+              <Minus className="w-3 h-3" />
+            </button>
+            <span
+              className="text-xs font-medium w-9 text-center cursor-pointer hover:text-primary transition-colors"
+              onClick={() => setCanvasZoom(1)}
+            >
+              {Math.round(canvasZoom * 100)}%
+            </span>
+            <button onClick={() => setCanvasZoom(z => Math.min(3, z + 0.1))} className="text-muted-foreground hover:text-foreground">
+              <Plus className="w-3 h-3" />
+            </button>
           </div>
         </main>
       </div>

@@ -27,8 +27,8 @@ interface WindowStackComponentProps {
   shadowString: string;
   positionX: number;
   positionY: number;
-  onScaleStart?: (e: React.MouseEvent<HTMLDivElement>) => void;
-  onRotateStart?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onScaleStart?: (e: React.PointerEvent<HTMLDivElement>) => void;
+  onRotateStart?: (e: React.PointerEvent<HTMLDivElement>) => void;
 }
 
 const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
@@ -48,10 +48,10 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
     const h = "absolute w-3 h-3 border border-primary/60 bg-background/90 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-auto shadow-sm hover:border-primary";
     return (
       <>
-        <div className={`${h} cursor-nwse-resize`} style={{ top: '-6px', left: '-6px' }} onMouseDown={onScaleStart} />
-        <div className={`${h} cursor-nesw-resize`} style={{ top: '-6px', right: '-6px' }} onMouseDown={onScaleStart} />
-        <div className={`${h} cursor-nesw-resize`} style={{ bottom: '-6px', left: '-6px' }} onMouseDown={onScaleStart} />
-        <div className={`${h} cursor-nwse-resize`} style={{ bottom: '-6px', right: '-6px' }} onMouseDown={onScaleStart} />
+        <div className={`${h} cursor-nwse-resize`} style={{ top: '-6px', left: '-6px' }} onPointerDown={onScaleStart} />
+        <div className={`${h} cursor-nesw-resize`} style={{ top: '-6px', right: '-6px' }} onPointerDown={onScaleStart} />
+        <div className={`${h} cursor-nesw-resize`} style={{ bottom: '-6px', left: '-6px' }} onPointerDown={onScaleStart} />
+        <div className={`${h} cursor-nwse-resize`} style={{ bottom: '-6px', right: '-6px' }} onPointerDown={onScaleStart} />
         {onRotateStart && (
           <div
             className="absolute left-1/2 flex flex-col items-center opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-auto"
@@ -59,7 +59,7 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
           >
             <div
               className="flex items-center justify-center w-5 h-5 border border-primary/60 bg-background/90 rounded-full cursor-grab shadow-sm hover:border-primary text-primary/80 hover:text-primary transition-colors"
-              onMouseDown={onRotateStart}
+              onPointerDown={onRotateStart}
               title="Drag to rotate"
             >
               <RotateCw className="w-3 h-3" strokeWidth={2.5} />

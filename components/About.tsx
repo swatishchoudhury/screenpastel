@@ -14,9 +14,8 @@ export default function About() {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-accent px-2 sm:px-3">
+            <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-accent px-2" title="About">
                     <Info className="w-4 h-4" />
-                    <span className="hidden sm:inline">About</span>
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
@@ -53,6 +52,14 @@ export default function About() {
                         <div className="flex justify-between items-center">
                             <span className="text-sm text-muted-foreground">Paste Image</span>
                             <kbd className="px-2 py-0.5 bg-muted rounded text-xs font-mono">Ctrl+V</kbd>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Zoom In</span>
+                            <kbd className="px-2 py-0.5 bg-muted rounded text-xs font-mono">+</kbd>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Zoom Out</span>
+                            <kbd className="px-2 py-0.5 bg-muted rounded text-xs font-mono">-</kbd>
                         </div>
                     </div>
 

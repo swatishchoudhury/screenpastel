@@ -146,8 +146,8 @@ export default function CropTool({ imageSrc, onApply, onCancel }: CropToolProps)
     }
   }, [aspectRatio, applyAspectRatio, imgRect.width]);
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent, handle: DragHandle) => {
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent, handle: DragHandle) => {
       e.preventDefault();
       e.stopPropagation();
       setActiveHandle(handle);
@@ -160,7 +160,7 @@ export default function CropTool({ imageSrc, onApply, onCancel }: CropToolProps)
   useEffect(() => {
     if (!activeHandle) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
       const dx = e.clientX - dragStart.x;
       const dy = e.clientY - dragStart.y;
 
@@ -223,7 +223,7 @@ export default function CropTool({ imageSrc, onApply, onCancel }: CropToolProps)
       let desiredWidth: number;
 
       const isCorner = (activeHandle.includes("top") || activeHandle.includes("bottom")) &&
-                       (activeHandle.includes("left") || activeHandle.includes("right"));
+        (activeHandle.includes("left") || activeHandle.includes("right"));
 
       if (isCorner) {
         const widthFromDx = activeHandle.includes("left") ? cropStart.width - dx : cropStart.width + dx;
@@ -282,15 +282,17 @@ export default function CropTool({ imageSrc, onApply, onCancel }: CropToolProps)
       setCrop({ x: newX, y: newY, width: w, height: h });
     };
 
-    const handleMouseUp = () => {
+    const handlePointerUp = () => {
       setActiveHandle(null);
     };
 
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("pointermove", handlePointerMove);
+    document.addEventListener("pointerup", handlePointerUp);
+    document.addEventListener("pointercancel", handlePointerUp);
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("pointermove", handlePointerMove);
+      document.removeEventListener("pointerup", handlePointerUp);
+      document.removeEventListener("pointercancel", handlePointerUp);
     };
   }, [activeHandle, dragStart, cropStart, clampCrop, aspectRatio, imgRect]);
 
@@ -396,7 +398,7 @@ export default function CropTool({ imageSrc, onApply, onCancel }: CropToolProps)
         </Button>
       </div>
 
-      <div ref={containerRef} className="relative inline-block select-none">
+      <div ref={containerRef} className="relative inline-block select-none" style={{ touchAction: 'none' }}>
         <img
           ref={imgRef}
           src={imageSrc}
@@ -438,7 +440,7 @@ export default function CropTool({ imageSrc, onApply, onCancel }: CropToolProps)
                 height: crop.height,
                 cursor: activeHandle === "move" ? "grabbing" : "grab",
               }}
-              onMouseDown={(e) => handleMouseDown(e, "move")}
+              onPointerDown={(e) => handlePointerDown(e, "move")}
             >
               <div className="absolute inset-0 border-2 border-white/90 pointer-events-none rounded-[1px]" />
 
@@ -463,36 +465,36 @@ export default function CropTool({ imageSrc, onApply, onCancel }: CropToolProps)
 
             <div
               style={{ ...cornerHitArea("nwse-resize"), left: crop.x - 10, top: crop.y - 10 }}
-              onMouseDown={(e) => handleMouseDown(e, "top-left")}
+              onPointerDown={(e) => handlePointerDown(e, "top-left")}
             />
             <div
               style={{ ...cornerHitArea("nesw-resize"), left: crop.x + crop.width - 10, top: crop.y - 10 }}
-              onMouseDown={(e) => handleMouseDown(e, "top-right")}
+              onPointerDown={(e) => handlePointerDown(e, "top-right")}
             />
             <div
               style={{ ...cornerHitArea("nesw-resize"), left: crop.x - 10, top: crop.y + crop.height - 10 }}
-              onMouseDown={(e) => handleMouseDown(e, "bottom-left")}
+              onPointerDown={(e) => handlePointerDown(e, "bottom-left")}
             />
             <div
               style={{ ...cornerHitArea("nwse-resize"), left: crop.x + crop.width - 10, top: crop.y + crop.height - 10 }}
-              onMouseDown={(e) => handleMouseDown(e, "bottom-right")}
+              onPointerDown={(e) => handlePointerDown(e, "bottom-right")}
             />
 
             <div
               style={{ ...edgeStyle("ns-resize", true), top: crop.y - 4, left: crop.x }}
-              onMouseDown={(e) => handleMouseDown(e, "top")}
+              onPointerDown={(e) => handlePointerDown(e, "top")}
             />
             <div
               style={{ ...edgeStyle("ns-resize", true), top: crop.y + crop.height - 4, left: crop.x }}
-              onMouseDown={(e) => handleMouseDown(e, "bottom")}
+              onPointerDown={(e) => handlePointerDown(e, "bottom")}
             />
             <div
               style={{ ...edgeStyle("ew-resize", false), left: crop.x - 4, top: crop.y }}
-              onMouseDown={(e) => handleMouseDown(e, "left")}
+              onPointerDown={(e) => handlePointerDown(e, "left")}
             />
             <div
               style={{ ...edgeStyle("ew-resize", false), left: crop.x + crop.width - 4, top: crop.y }}
-              onMouseDown={(e) => handleMouseDown(e, "right")}
+              onPointerDown={(e) => handlePointerDown(e, "right")}
             />
           </>
         )}
