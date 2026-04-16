@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Crop, ChevronDown } from "lucide-react";
+import { Crop, ChevronDown, FlipHorizontal, FlipVertical } from "lucide-react";
 import type { EditorState } from "../lib/types";
 import Slider from "./Slider";
 
@@ -20,7 +20,7 @@ const aspectRatios = [
   { label: "9:16 (Vertical)", value: "9:16" },
 ];
 
-export default function StylingControls({
+export default function TransformControls({
   state,
   setState,
   commit,
@@ -36,18 +36,38 @@ export default function StylingControls({
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">Dimensions & Size</h3>
+        <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">Transform</h3>
         <div className="grid grid-cols-1 gap-4 pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onCropClick}
-            disabled={isCropDisabled}
-            className="w-full justify-center gap-2 bg-secondary/50 backdrop-blur-sm border-border/50 hover:bg-accent/80 text-xs"
-          >
-            <Crop className="w-3.5 h-3.5" />
-            Crop Image
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onCropClick}
+              disabled={isCropDisabled}
+              className="flex-1 justify-center gap-2 bg-secondary/50 backdrop-blur-sm border-border/50 hover:bg-accent/80 text-xs"
+            >
+              <Crop className="w-3.5 h-3.5" />
+              Crop Image
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className={`w-9 flex-shrink-0 bg-secondary/50 backdrop-blur-sm border-border/50 hover:bg-accent/80 transition-colors ${state.flipX ? 'bg-accent text-accent-foreground border-primary/50' : ''}`}
+              title="Flip Horizontal"
+              onClick={() => commit((prev) => ({ ...prev, flipX: !prev.flipX }))}
+            >
+              <FlipHorizontal className="w-3.5 h-3.5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className={`w-9 flex-shrink-0 bg-secondary/50 backdrop-blur-sm border-border/50 hover:bg-accent/80 transition-colors ${state.flipY ? 'bg-accent text-accent-foreground border-primary/50' : ''}`}
+              title="Flip Vertical"
+              onClick={() => commit((prev) => ({ ...prev, flipY: !prev.flipY }))}
+            >
+              <FlipVertical className="w-3.5 h-3.5" />
+            </Button>
+          </div>
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">Aspect Ratio</Label>
             <DropdownMenu>

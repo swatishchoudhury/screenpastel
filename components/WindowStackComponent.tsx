@@ -29,6 +29,8 @@ interface WindowStackComponentProps {
   positionY: number;
   onScaleStart?: (e: React.PointerEvent<HTMLDivElement>) => void;
   onRotateStart?: (e: React.PointerEvent<HTMLDivElement>) => void;
+  flipX: boolean;
+  flipY: boolean;
 }
 
 const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
@@ -42,29 +44,43 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
   positionY,
   onScaleStart,
   onRotateStart,
+  flipX,
+  flipY,
 }) => {
   const renderResizeHandles = () => {
     if (!onScaleStart) return null;
-    const h = "absolute w-3 h-3 border border-primary/60 bg-background/90 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-auto shadow-sm hover:border-primary";
+    const hitArea = "absolute flex items-center justify-center pointer-events-auto z-50 w-10 h-10 -translate-x-1/2 -translate-y-1/2 touch-none";
+    const dot = "w-3.5 h-3.5 md:w-3 md:h-3 border border-primary/60 bg-background/90 rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-[opacity,transform] hover:scale-110 shadow-sm md:hover:border-primary";
+    
     return (
       <>
-        <div className={`${h} cursor-nwse-resize`} style={{ top: '-6px', left: '-6px' }} onPointerDown={onScaleStart} />
-        <div className={`${h} cursor-nesw-resize`} style={{ top: '-6px', right: '-6px' }} onPointerDown={onScaleStart} />
-        <div className={`${h} cursor-nesw-resize`} style={{ bottom: '-6px', left: '-6px' }} onPointerDown={onScaleStart} />
-        <div className={`${h} cursor-nwse-resize`} style={{ bottom: '-6px', right: '-6px' }} onPointerDown={onScaleStart} />
+        <div className={`${hitArea} cursor-nwse-resize`} style={{ top: 0, left: 0 }} onPointerDown={onScaleStart}>
+          <div className={dot} />
+        </div>
+        <div className={`${hitArea} cursor-nesw-resize`} style={{ top: 0, left: '100%' }} onPointerDown={onScaleStart}>
+          <div className={dot} />
+        </div>
+        <div className={`${hitArea} cursor-nesw-resize`} style={{ top: '100%', left: 0 }} onPointerDown={onScaleStart}>
+          <div className={dot} />
+        </div>
+        <div className={`${hitArea} cursor-nwse-resize`} style={{ top: '100%', left: '100%' }} onPointerDown={onScaleStart}>
+          <div className={dot} />
+        </div>
         {onRotateStart && (
           <div
-            className="absolute left-1/2 flex flex-col items-center opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-auto"
-            style={{ top: '-34px', transform: 'translateX(-50%)' }}
+            className="absolute left-1/2 flex flex-col items-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-50 pointer-events-auto touch-none"
+            style={{ top: '-40px', transform: 'translateX(-50%)' }}
           >
             <div
-              className="flex items-center justify-center w-5 h-5 border border-primary/60 bg-background/90 rounded-full cursor-grab shadow-sm hover:border-primary text-primary/80 hover:text-primary transition-colors"
+              className="flex items-center justify-center p-2 cursor-grab text-primary/80 hover:text-primary transition-colors"
               onPointerDown={onRotateStart}
               title="Drag to rotate"
             >
-              <RotateCw className="w-3 h-3" strokeWidth={2.5} />
+              <div className="flex items-center justify-center w-6 h-6 border border-primary/60 bg-background/90 rounded-full shadow-sm md:hover:border-primary pointer-events-none transition-transform hover:scale-110">
+                <RotateCw className="w-3.5 h-3.5" strokeWidth={2.5} />
+              </div>
             </div>
-            <div className="w-px h-3 bg-primary/30" />
+            <div className="w-px h-2.5 bg-primary/40 -mt-1" />
           </div>
         )}
       </>
@@ -93,7 +109,10 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
                 src={image}
                 alt="Screenshot"
                 className="block max-w-full h-auto object-contain"
-                style={{ maxHeight: "45vh" }}
+                style={{
+                  maxHeight: "45vh",
+                  transform: `scaleX(${flipX ? -1 : 1}) scaleY(${flipY ? -1 : 1})`,
+                }}
               />
             </div>
           </WindowFrameComponent>
@@ -119,6 +138,7 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
         style={{
           maxHeight: "45vh",
           filter: isStack ? "brightness(0.8)" : undefined,
+          transform: `scaleX(${flipX ? -1 : 1}) scaleY(${flipY ? -1 : 1})`,
         }}
       />
     );

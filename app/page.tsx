@@ -7,15 +7,16 @@ import {
   Copy,
   Download,
   Frame,
-  Layers,
   Loader2,
   Palette,
-  Move,
+  Maximize,
+  PanelTop,
   Redo2,
   Undo2,
   Upload,
   Minus,
   Plus,
+  Trash2,
 } from "lucide-react";
 import About from "../components/About";
 import type React from "react";
@@ -33,9 +34,10 @@ import {
 import BackgroundControls from "../components/BackgroundControls";
 import BorderControls from "../components/BorderControls";
 import ShadowControls from "../components/ShadowControls";
-import StylingControls from "../components/StylingControls";
+import TransformControls from "../components/TransformControls";
 import WindowControls from "../components/WindowControls";
 import WindowStackComponent from "../components/WindowStackComponent";
+import { FloatingToolbar } from "../components/FloatingToolbar";
 import CropTool from "../components/CropTool";
 import { BACKGROUNDS, FRAMES } from "../lib/data";
 import type { EditorState } from "../lib/types";
@@ -85,6 +87,8 @@ const INITIAL_STATE: EditorState = {
   positionX: 0,
   positionY: 0,
   aspectRatio: "auto",
+  flipX: false,
+  flipY: false,
 };
 
 export default function ScreenshotEditor() {
@@ -386,10 +390,10 @@ export default function ScreenshotEditor() {
 
   const tabs = [
     { id: "background" as TabType, label: "Background", icon: Palette },
-    { id: "styling" as TabType, label: "Layout", icon: Move },
+    { id: "styling" as TabType, label: "Transform", icon: Maximize },
     { id: "shadow" as TabType, label: "Shadow", icon: Box },
     { id: "border" as TabType, label: "Border", icon: Frame },
-    { id: "window" as TabType, label: "Window", icon: Layers },
+    { id: "window" as TabType, label: "Window", icon: PanelTop },
   ];
 
   const handleTabClick = (tabId: TabType) => {
@@ -403,7 +407,7 @@ export default function ScreenshotEditor() {
       case "background":
         return <BackgroundControls state={state} setState={setState} commit={commit} />;
       case "styling":
-        return <StylingControls state={state} setState={setState} commit={commit} onCropClick={() => setShowCropTool(true)} isCropDisabled={!state.image} />;
+        return <TransformControls state={state} setState={setState} commit={commit} onCropClick={() => setShowCropTool(true)} isCropDisabled={!state.image} />;
       case "shadow":
         return <ShadowControls state={state} setState={setState} commit={commit} />;
       case "border":
@@ -483,6 +487,8 @@ export default function ScreenshotEditor() {
             shadowString={shadowString}
             positionX={state.positionX}
             positionY={state.positionY}
+            flipX={state.flipX}
+            flipY={state.flipY}
             onScaleStart={(e: React.PointerEvent<HTMLDivElement>) => {
               e.preventDefault();
               e.stopPropagation();
@@ -620,8 +626,8 @@ export default function ScreenshotEditor() {
                 onClick={handleNewUploadClick}
                 className="text-muted-foreground hover:text-foreground hover:bg-accent px-2 sm:px-3"
               >
-                <Upload className="w-4 h-4" />
-                <span className="hidden sm:inline">{state.image ? "New" : "Upload"}</span>
+                {state.image ? <Trash2 className="w-4 h-4" /> : <Upload className="w-4 h-4" />}
+                <span className="hidden sm:inline">{state.image ? "Remove" : "Upload"}</span>
               </Button>
               <Button
                 variant="ghost"
@@ -676,6 +682,16 @@ export default function ScreenshotEditor() {
 
 
           <main className="flex-1 p-8 flex items-center justify-center bg-background/50 backdrop-blur-sm relative overflow-hidden">
+            <FloatingToolbar
+              state={state}
+              commit={commit}
+              onLayoutClick={() => handleTabClick("styling")}
+              setShowCropTool={setShowCropTool}
+              undo={undo}
+              redo={redo}
+              canUndo={canUndo}
+              canRedo={canRedo}
+            />
             <div
               className="origin-center"
               style={{ transform: state.image ? `scale(${canvasZoom})` : 'none' }}
@@ -719,6 +735,16 @@ export default function ScreenshotEditor() {
 
 
         <main className="md:hidden flex-1 p-2 pb-36 flex items-center justify-center bg-background/50 backdrop-blur-sm relative overflow-hidden">
+          <FloatingToolbar
+            state={state}
+            commit={commit}
+            onLayoutClick={() => handleTabClick("styling")}
+            setShowCropTool={setShowCropTool}
+            undo={undo}
+            redo={redo}
+            canUndo={canUndo}
+            canRedo={canRedo}
+          />
           <div
             className="origin-center"
             style={{ transform: state.image ? `scale(${canvasZoom * 0.75})` : 'none' }}

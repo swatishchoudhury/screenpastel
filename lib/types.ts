@@ -68,6 +68,8 @@ interface EditorState {
   positionX: number;
   positionY: number;
   aspectRatio: string;
+  flipX: boolean;
+  flipY: boolean;
 }
 
 export type { WindowFrame, Background, Theme, ShadowLayer, StackConfig, EditorState };
