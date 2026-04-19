@@ -70,6 +70,10 @@ interface EditorState {
   aspectRatio: string;
   flipX: boolean;
   flipY: boolean;
+  perspective: number;
+  rotateX: number;
+  rotateY: number;
+  rotateZ: number;
 }
 
 export type { WindowFrame, Background, Theme, ShadowLayer, StackConfig, EditorState };

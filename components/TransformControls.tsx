@@ -12,6 +12,45 @@ import { Crop, ChevronDown, FlipHorizontal, FlipVertical } from "lucide-react";
 import type { EditorState } from "../lib/types";
 import Slider from "./Slider";
 
+const PRESETS = [
+  {
+    name: 'Default',
+    values: { perspective: 1000, rotateX: 0, rotateY: 0, rotateZ: 0 },
+  },
+  {
+    name: 'Subtle Left',
+    values: { perspective: 1000, rotateX: 3, rotateY: -10, rotateZ: 0 },
+  },
+  {
+    name: 'Subtle Right',
+    values: { perspective: 1000, rotateX: -3, rotateY: 10, rotateZ: 0 },
+  },
+  {
+    name: 'Dramatic Left',
+    values: { perspective: 1000, rotateX: 5, rotateY: -20, rotateZ: 0 },
+  },
+  {
+    name: 'Dramatic Right',
+    values: { perspective: 1000, rotateX: -5, rotateY: 20, rotateZ: 0 },
+  },
+  {
+    name: 'Top Left',
+    values: { perspective: 1200, rotateX: 25, rotateY: -10, rotateZ: -15 },
+  },
+  {
+    name: 'Top Right',
+    values: { perspective: 1200, rotateX: 25, rotateY: 10, rotateZ: 15 },
+  },
+  {
+    name: 'Front Depth',
+    values: { perspective: 1000, rotateX: 15, rotateY: 0, rotateZ: 0 },
+  },
+  {
+    name: 'Side Depth',
+    values: { perspective: 1000, rotateX: 0, rotateY: -15, rotateZ: 0 },
+  },
+];
+
 const aspectRatios = [
   { label: "Auto", value: "auto" },
   { label: "1:1 (Square)", value: "1:1" },
@@ -94,7 +133,7 @@ export default function TransformControls({
           </div>
           <Slider
             label="Scale"
-            value={state.scale}
+            value={Number(state.scale.toFixed(2))}
             onChange={(v: number) => setState((prev) => ({ ...prev, scale: v }))}
             onCommit={(v: number) => commit((prev) => ({ ...prev, scale: v }))}
             min={0.5}
@@ -151,6 +190,86 @@ export default function TransformControls({
             max={360}
             unit="°"
             snapPoints={[0, 45, 90, 135, 180, 270, 360, -45, -90, -135, -180, -270, -360]}
+            snapThreshold={3}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between border-b border-border/50 pb-1">
+          <h3 className="text-sm font-medium text-foreground/80">3D Transform</h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => commit((prev) => ({ ...prev, perspective: 1000, rotateX: 0, rotateY: 0, rotateZ: 0 }))}
+            className="h-6 px-2 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Reset
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-1.5 pt-1">
+          {PRESETS.map((preset) => (
+            <button
+              key={preset.name}
+              onClick={() => commit((prev) => ({ ...prev, ...preset.values }))}
+              className={`group relative flex flex-col items-center p-1.5 rounded-lg border transition-all hover:bg-accent/50 ${state.rotateX === preset.values.rotateX && state.rotateY === preset.values.rotateY && state.rotateZ === preset.values.rotateZ
+                ? 'bg-accent border-primary/50 ring-1 ring-primary/20'
+                : 'bg-secondary/30 border-border/50 hover:border-border'
+                }`}
+              title={preset.name}
+            >
+              <div
+                className="w-full aspect-square bg-foreground/5 rounded-sm shadow-inner transition-transform group-hover:scale-105 overflow-hidden flex items-center justify-center"
+                style={{
+                  perspective: '80px',
+                  transformStyle: 'preserve-3d'
+                }}
+              >
+                <div
+                  className="w-1/2 h-1/2 bg-foreground/20 rounded-[2px] shadow-sm"
+                  style={{
+                    transform: `rotateX(${preset.values.rotateX}deg) rotateY(${preset.values.rotateY}deg) rotateZ(${preset.values.rotateZ}deg)`,
+                    transformStyle: 'preserve-3d'
+                  }}
+                />
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 pt-2">
+          <Slider
+            label="Rotate X"
+            value={Math.round(state.rotateX)}
+            onChange={(v: number) => setState((prev) => ({ ...prev, rotateX: v }))}
+            onCommit={(v: number) => commit((prev) => ({ ...prev, rotateX: v }))}
+            min={-90}
+            max={90}
+            unit="°"
+            snapPoints={[0]}
+            snapThreshold={3}
+          />
+          <Slider
+            label="Rotate Y"
+            value={Math.round(state.rotateY)}
+            onChange={(v: number) => setState((prev) => ({ ...prev, rotateY: v }))}
+            onCommit={(v: number) => commit((prev) => ({ ...prev, rotateY: v }))}
+            min={-90}
+            max={90}
+            unit="°"
+            snapPoints={[0]}
+            snapThreshold={3}
+          />
+          <Slider
+            label="Rotate Z"
+            value={Math.round(state.rotateZ)}
+            onChange={(v: number) => setState((prev) => ({ ...prev, rotateZ: v }))}
+            onCommit={(v: number) => commit((prev) => ({ ...prev, rotateZ: v }))}
+            min={-90}
+            max={90}
+            unit="°"
+            snapPoints={[0]}
             snapThreshold={3}
           />
         </div>

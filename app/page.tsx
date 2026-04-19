@@ -89,6 +89,10 @@ const INITIAL_STATE: EditorState = {
   aspectRatio: "auto",
   flipX: false,
   flipY: false,
+  perspective: 1000,
+  rotateX: 0,
+  rotateY: 0,
+  rotateZ: 0,
 };
 
 export default function ScreenshotEditor() {
@@ -127,12 +131,17 @@ export default function ScreenshotEditor() {
   const isRotating = useRef(false);
   const rotateStart = useRef({ centerX: 0, centerY: 0, initialAngle: 0, initialRotation: 0 });
   const rotateInitialState = useRef<EditorState | null>(null);
+  const is3DRotating = useRef(false);
+  const rotate3DStart = useRef({ x: 0, y: 0, initialRotateX: 0, initialRotateY: 0 });
+  const rotate3DInitialState = useRef<EditorState | null>(null);
   const [showGuides, setShowGuides] = useState({ x: false, y: false });
 
   const DRAG_SNAP_THRESHOLD = 6;
   const ROTATION_SNAP_POINTS = [0, 45, 90, 135, 180, 270, 360, -45, -90, -135, -180, -270, -360];
   const ROTATION_SNAP_THRESHOLD = 3;
   const [snappedAngle, setSnappedAngle] = useState<number | null>(null);
+  const [show3DHandle, setShow3DHandle] = useState(false);
+  const handleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const handlePointerMove = (e: PointerEvent) => {
@@ -179,48 +188,67 @@ export default function ScreenshotEditor() {
           ...prev,
           rotation: Number(newRotation.toFixed(1)),
         }));
+      } else if (is3DRotating.current) {
+        const dx = (e.clientX - rotate3DStart.current.x) / 2;
+        const dy = (e.clientY - rotate3DStart.current.y) / 2;
+        const newX = Math.round(Math.max(-90, Math.min(90, rotate3DStart.current.initialRotateX - dy)));
+        const newY = Math.round(Math.max(-90, Math.min(90, rotate3DStart.current.initialRotateY + dx)));
+        setState((prev) => ({
+          ...prev,
+          rotateX: newX,
+          rotateY: newY,
+        }));
       }
     };
 
     const handlePointerUp = () => {
       if (isDragging.current) {
         setShowGuides({ x: false, y: false });
-        if (dragInitialState.current) {
-          commit((prev) => prev);
-          dragInitialState.current = null;
-        }
+        if (dragInitialState.current) commit((prev) => prev);
+        isDragging.current = false;
+        dragInitialState.current = null;
       }
       if (isRotating.current) {
         setSnappedAngle(null);
-        if (rotateInitialState.current) {
-          commit((prev) => prev);
-          rotateInitialState.current = null;
-        }
-      }
-      if (isScaling.current) {
-        if (scaleInitialState.current) {
-          commit((prev) => prev);
-          scaleInitialState.current = null;
-        }
-      }
-      isDragging.current = false;
-      if (isScaling.current) {
-        isScaling.current = false;
-        document.body.style.cursor = 'default';
-      }
-      if (isRotating.current) {
+        if (rotateInitialState.current) commit((prev) => prev);
         isRotating.current = false;
-        document.body.style.cursor = 'default';
+        rotateInitialState.current = null;
+      }
+      if (isScaling.current) {
+        if (scaleInitialState.current) commit((prev) => prev);
+        isScaling.current = false;
+        scaleInitialState.current = null;
+      }
+      if (is3DRotating.current) {
+        if (rotate3DInitialState.current) commit((prev) => prev);
+        is3DRotating.current = false;
+        rotate3DInitialState.current = null;
+
+        if (handleTimeoutRef.current) clearTimeout(handleTimeoutRef.current);
+        handleTimeoutRef.current = setTimeout(() => {
+          setShow3DHandle(false);
+        }, 3000);
+      }
+      document.body.style.cursor = 'default';
+    };
+
+    const handleGlobalClick = (e: MouseEvent) => {
+      const container = (e.target as HTMLElement).closest('[data-transform-container]');
+      if (!container) {
+        setShow3DHandle(false);
       }
     };
 
     document.addEventListener("pointermove", handlePointerMove);
     document.addEventListener("pointerup", handlePointerUp);
     document.addEventListener("pointercancel", handlePointerUp);
+    document.addEventListener("mousedown", handleGlobalClick);
     return () => {
       document.removeEventListener("pointermove", handlePointerMove);
       document.removeEventListener("pointerup", handlePointerUp);
       document.removeEventListener("pointercancel", handlePointerUp);
+      document.removeEventListener("mousedown", handleGlobalClick);
+      if (handleTimeoutRef.current) clearTimeout(handleTimeoutRef.current);
     };
   }, []);
 
@@ -442,7 +470,9 @@ export default function ScreenshotEditor() {
           style={{
             padding: `${state.padding}px`,
             aspectRatio: state.aspectRatio === "auto" ? "auto" : state.aspectRatio.replace(":", "/"),
-            touchAction: 'none'
+            touchAction: 'none',
+            perspective: state.rotateX || state.rotateY || state.rotateZ ? `${state.perspective}px` : undefined,
+            transformStyle: state.rotateX || state.rotateY || state.rotateZ ? 'preserve-3d' : undefined
           }}
           onPointerDown={(e) => {
             e.preventDefault();
@@ -452,6 +482,12 @@ export default function ScreenshotEditor() {
               x: e.clientX - state.positionX * canvasZoomRef.current,
               y: e.clientY - state.positionY * canvasZoomRef.current,
             };
+
+            setShow3DHandle(true);
+            if (handleTimeoutRef.current) clearTimeout(handleTimeoutRef.current);
+            handleTimeoutRef.current = setTimeout(() => {
+              setShow3DHandle(false);
+            }, 3000);
           }}
         >
           <div
@@ -487,6 +523,11 @@ export default function ScreenshotEditor() {
             shadowString={shadowString}
             positionX={state.positionX}
             positionY={state.positionY}
+            perspective={state.perspective}
+            rotateX={state.rotateX}
+            rotateY={state.rotateY}
+            rotateZ={state.rotateZ}
+            show3DHandle={show3DHandle}
             flipX={state.flipX}
             flipY={state.flipY}
             onScaleStart={(e: React.PointerEvent<HTMLDivElement>) => {
@@ -521,6 +562,19 @@ export default function ScreenshotEditor() {
                 const initialAngle = Math.atan2(dy, dx) * (180 / Math.PI);
                 rotateStart.current = { centerX, centerY, initialAngle, initialRotation: state.rotation };
               }
+              document.body.style.cursor = 'grabbing';
+            }}
+            on3DRotateStart={(e: React.PointerEvent<HTMLDivElement>) => {
+              e.preventDefault();
+              e.stopPropagation();
+              is3DRotating.current = true;
+              rotate3DInitialState.current = state;
+              rotate3DStart.current = {
+                x: e.clientX,
+                y: e.clientY,
+                initialRotateX: state.rotateX,
+                initialRotateY: state.rotateY,
+              };
               document.body.style.cursor = 'grabbing';
             }}
           />
