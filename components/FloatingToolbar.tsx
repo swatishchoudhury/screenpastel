@@ -1,5 +1,4 @@
-import type React from "react";
-import { Menu, Crop, FlipHorizontal, FlipVertical, Undo2, Redo2 } from "lucide-react";
+import { Crop, FlipHorizontal, FlipVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,23 +11,13 @@ import type { EditorState } from "../lib/types";
 interface FloatingToolbarProps {
   state: EditorState;
   commit: (update: EditorState | ((prev: EditorState) => EditorState)) => void;
-  onLayoutClick: () => void;
   setShowCropTool: (show: boolean) => void;
-  undo: () => void;
-  redo: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
 }
 
 export function FloatingToolbar({
   state,
   commit,
-  onLayoutClick,
   setShowCropTool,
-  undo,
-  redo,
-  canUndo,
-  canRedo,
 }: FloatingToolbarProps) {
   if (!state.image) return null;
   return (

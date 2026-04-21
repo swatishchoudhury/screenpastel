@@ -95,7 +95,7 @@ export default function BackgroundControls({
                     )}
                 </button>
 
-                <GradientControls state={state} setState={setState} commit={commit} />
+                <GradientControls state={state} commit={commit} />
             </div>
 
             <input

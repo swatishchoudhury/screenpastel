@@ -24,13 +24,36 @@ Thank you for your interest in contributing to Screen Pastel! We welcome contrib
 - `bun run lint` - Check code with Biome linter
 - `bun run format` - Format code with Biome
 
-## Code Style and Standards
+
+## State Management: `commit()` vs `setState()`
+
+The editor uses a custom `useHistory` hook that separates **live preview** from **undo-able changes**:
+
+- **`setState()`** — Updates the UI immediately (e.g., while dragging a slider). Does **not** create an undo entry.
+- **`commit()`** — Saves the change to undo history (e.g., when the slider is released). Creates an undo entry.
+
+When adding or modifying controls, use this pattern:
+```tsx
+<Slider
+  label="Padding"
+  value={state.padding}
+  onChange={(v) => setState((prev) => ({ ...prev, padding: v }))}    // live preview
+  onCommit={(v) => commit((prev) => ({ ...prev, padding: v }))}     // undo-able
+  min={0}
+  max={200}
+/>
+```
+
+This ensures that dragging a slider doesn't flood the undo history with intermediate values.
+
+## Code Style
 
 - We use **Biome** for code linting and formatting
-- Run `bun run lint` and `bun run format` before submitting PRs
+- Run `bun run format` before submitting PRs to auto-fix formatting
+- `bun run lint` will show remaining issues - not all need to be resolved (see note below)
 - Follow TypeScript best practices
-- Use meaningful commit messages
 - Write clear, concise comments where necessary
+- Use meaningful commit messages (we use `feat:`, `fix:`, `refactor:` prefixes)
 
 ## Adding New Gradients
 
@@ -50,11 +73,22 @@ Example:
 }
 ```
 
+## Adding New Controls
+
+To add a new control panel to the sidebar:
+
+1. Create a new component in `components/` following the pattern of existing controls
+2. Accept `state`, `setState`, and `commit` as props
+3. Use `setState` for live preview and `commit` for final values
+4. Register the tab in the `tabs` array in `app/page.tsx`
+5. Add the rendering case in `renderTabContent()`
+
 ## Testing
 
 - Currently, manual testing is recommended
 - Test your changes across different browsers
 - Ensure the tool works properly with various screenshot sizes
+- Verify both desktop (sidebar) and mobile (bottom panel) layouts
 
 ## Reporting Issues
 

@@ -3,7 +3,7 @@
 import { Check, Pencil, Save, Trash2 } from "lucide-react";
 import type React from "react";
 import { useState, useEffect } from "react";
-import type { Background, EditorState, Theme } from "../lib/types";
+import type { EditorState, Theme } from "../lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ColorSwatch from "./ColorSwatch";
@@ -23,11 +23,9 @@ const STORAGE_KEY = "customThemes";
 
 export default function GradientControls({
     state,
-    setState,
     commit,
 }: {
     state: EditorState;
-    setState: React.Dispatch<React.SetStateAction<EditorState>>;
     commit: (update: EditorState | ((prev: EditorState) => EditorState)) => void;
 }) {
     const [showCustomGradient, setShowCustomGradient] = useState(false);

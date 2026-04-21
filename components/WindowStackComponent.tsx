@@ -30,10 +30,9 @@ interface WindowStackComponentProps {
   onScaleStart?: (e: React.PointerEvent<HTMLDivElement>) => void;
   onRotateStart?: (e: React.PointerEvent<HTMLDivElement>) => void;
   on3DRotateStart?: (e: React.PointerEvent<HTMLDivElement>) => void;
-  show3DHandle?: boolean;
+  showHandles?: boolean;
   flipX: boolean;
   flipY: boolean;
-  perspective: number;
   rotateX: number;
   rotateY: number;
   rotateZ: number;
@@ -51,10 +50,9 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
   onScaleStart,
   onRotateStart,
   on3DRotateStart,
-  show3DHandle,
+  showHandles,
   flipX,
   flipY,
-  perspective,
   rotateX,
   rotateY,
   rotateZ,
@@ -62,7 +60,7 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
   const renderResizeHandles = () => {
     if (!onScaleStart) return null;
     const hitArea = "absolute flex items-center justify-center pointer-events-auto z-50 w-10 h-10 -translate-x-1/2 -translate-y-1/2 touch-none";
-    const dot = "w-3.5 h-3.5 md:w-3 md:h-3 border border-primary/60 bg-background/90 rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-[opacity,transform] hover:scale-110 shadow-sm md:hover:border-primary";
+    const dot = `w-3.5 h-3.5 md:w-3 md:h-3 border border-primary/60 bg-background/90 rounded-full transition-[opacity,transform] hover:scale-110 shadow-sm md:hover:border-primary ${showHandles ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`;
 
     return (
       <>
@@ -80,7 +78,7 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
         </div>
         {onRotateStart && (
           <div
-            className="absolute left-1/2 flex flex-col items-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-50 pointer-events-auto touch-none"
+            className={`absolute left-1/2 flex flex-col items-center transition-opacity z-50 pointer-events-auto touch-none ${showHandles ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
             style={{ top: '-40px', transform: 'translateX(-50%)' }}
           >
             <div
@@ -97,7 +95,7 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
         )}
         {on3DRotateStart && (
           <div
-            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-opacity z-50 pointer-events-auto touch-none ${show3DHandle ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-opacity z-50 pointer-events-auto touch-none ${showHandles ? "opacity-100" : "opacity-0 group-hover:opacity-100"
               }`}
             onPointerDown={on3DRotateStart}
           >

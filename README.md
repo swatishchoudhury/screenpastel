@@ -27,13 +27,16 @@ bun run dev
 ## Usage
 
 1. Upload or paste your screenshot
-2. Adjust window frames, backgrounds, borders, and shadows using the control panels
-3. Preview your changes in real-time
-4. Export the edited screenshot
+2. Adjust window frames, backgrounds, borders, and shadows using the sidebar controls
+3. Use the crop tool, flip, 3D rotation, and transform controls to fine-tune
+4. Undo/redo any changes (`Ctrl+Z` / `Ctrl+Shift+Z`)
+5. Zoom in/out on the canvas for precision
+6. Preview your changes in real-time
+7. Export the edited screenshot
 
 ## Technologies Used
 
-- **Framework**: Next.js 15
+- **Framework**: Next.js 16
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **UI**: shadcn/ui

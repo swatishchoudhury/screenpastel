@@ -140,7 +140,7 @@ export default function ScreenshotEditor() {
   const ROTATION_SNAP_POINTS = [0, 45, 90, 135, 180, 270, 360, -45, -90, -135, -180, -270, -360];
   const ROTATION_SNAP_THRESHOLD = 3;
   const [snappedAngle, setSnappedAngle] = useState<number | null>(null);
-  const [show3DHandle, setShow3DHandle] = useState(false);
+  const [showHandles, setShowHandles] = useState(false);
   const handleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -226,7 +226,7 @@ export default function ScreenshotEditor() {
 
         if (handleTimeoutRef.current) clearTimeout(handleTimeoutRef.current);
         handleTimeoutRef.current = setTimeout(() => {
-          setShow3DHandle(false);
+          setShowHandles(false);
         }, 3000);
       }
       document.body.style.cursor = 'default';
@@ -235,7 +235,7 @@ export default function ScreenshotEditor() {
     const handleGlobalClick = (e: MouseEvent) => {
       const container = (e.target as HTMLElement).closest('[data-transform-container]');
       if (!container) {
-        setShow3DHandle(false);
+        setShowHandles(false);
       }
     };
 
@@ -483,10 +483,10 @@ export default function ScreenshotEditor() {
               y: e.clientY - state.positionY * canvasZoomRef.current,
             };
 
-            setShow3DHandle(true);
+            setShowHandles(true);
             if (handleTimeoutRef.current) clearTimeout(handleTimeoutRef.current);
             handleTimeoutRef.current = setTimeout(() => {
-              setShow3DHandle(false);
+              setShowHandles(false);
             }, 3000);
           }}
         >
@@ -523,11 +523,10 @@ export default function ScreenshotEditor() {
             shadowString={shadowString}
             positionX={state.positionX}
             positionY={state.positionY}
-            perspective={state.perspective}
             rotateX={state.rotateX}
             rotateY={state.rotateY}
             rotateZ={state.rotateZ}
-            show3DHandle={show3DHandle}
+            showHandles={showHandles}
             flipX={state.flipX}
             flipY={state.flipY}
             onScaleStart={(e: React.PointerEvent<HTMLDivElement>) => {
@@ -739,12 +738,7 @@ export default function ScreenshotEditor() {
             <FloatingToolbar
               state={state}
               commit={commit}
-              onLayoutClick={() => handleTabClick("styling")}
               setShowCropTool={setShowCropTool}
-              undo={undo}
-              redo={redo}
-              canUndo={canUndo}
-              canRedo={canRedo}
             />
             <div
               className="origin-center"
@@ -792,12 +786,7 @@ export default function ScreenshotEditor() {
           <FloatingToolbar
             state={state}
             commit={commit}
-            onLayoutClick={() => handleTabClick("styling")}
             setShowCropTool={setShowCropTool}
-            undo={undo}
-            redo={redo}
-            canUndo={canUndo}
-            canRedo={canRedo}
           />
           <div
             className="origin-center"
