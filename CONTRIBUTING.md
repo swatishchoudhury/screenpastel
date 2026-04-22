@@ -50,7 +50,7 @@ This ensures that dragging a slider doesn't flood the undo history with intermed
 
 - We use **Biome** for code linting and formatting
 - Run `bun run format` before submitting PRs to auto-fix formatting
-- `bun run lint` will show remaining issues - not all need to be resolved (see note below)
+- `bun run lint` will show remaining issues - not all need to be resolved
 - Follow TypeScript best practices
 - Write clear, concise comments where necessary
 - Use meaningful commit messages (we use `feat:`, `fix:`, `refactor:` prefixes)

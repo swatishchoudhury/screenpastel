@@ -8,21 +8,19 @@ import {
   Download,
   Frame,
   Loader2,
-  Palette,
   Maximize,
+  Minus,
+  Palette,
   PanelTop,
+  Plus,
   Redo2,
+  Trash2,
   Undo2,
   Upload,
-  Minus,
-  Plus,
-  Trash2,
 } from "lucide-react";
-import About from "../components/About";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 import {
   Dialog,
   DialogContent,
@@ -31,17 +29,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Slider } from "@/components/ui/slider";
+import About from "../components/About";
 import BackgroundControls from "../components/BackgroundControls";
 import BorderControls from "../components/BorderControls";
+import CropTool from "../components/CropTool";
+import { FloatingToolbar } from "../components/FloatingToolbar";
 import ShadowControls from "../components/ShadowControls";
 import TransformControls from "../components/TransformControls";
 import WindowControls from "../components/WindowControls";
 import WindowStackComponent from "../components/WindowStackComponent";
-import { FloatingToolbar } from "../components/FloatingToolbar";
-import CropTool from "../components/CropTool";
 import { BACKGROUNDS, FRAMES } from "../lib/data";
+import {
+  copyImage as copyImageUtil,
+  exportImage as exportImageUtil,
+} from "../lib/imageExporter";
 import type { EditorState } from "../lib/types";
-import { exportImage as exportImageUtil, copyImage as copyImageUtil } from "../lib/imageExporter";
 import { useHistory } from "../lib/useHistory";
 
 type TabType = "background" | "styling" | "shadow" | "border" | "window";
@@ -113,31 +116,57 @@ export default function ScreenshotEditor() {
   const [canvasZoom, _setCanvasZoom] = useState(1);
   const canvasZoomRef = useRef(1);
   const setCanvasZoom = (val: number | ((prev: number) => number)) => {
-    _setCanvasZoom(prev => {
-      const next = typeof val === 'function' ? val(prev) : val;
+    _setCanvasZoom((prev) => {
+      const next = typeof val === "function" ? val(prev) : val;
       canvasZoomRef.current = next;
       return next;
     });
   };
 
-  const { state, setState, commit, undo, redo, canUndo, canRedo, resetHistory } = useHistory(INITIAL_STATE);
+  const {
+    state,
+    setState,
+    commit,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    resetHistory,
+  } = useHistory(INITIAL_STATE);
 
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
   const dragInitialState = useRef<EditorState | null>(null);
   const isScaling = useRef(false);
-  const scaleStart = useRef({ centerX: 0, centerY: 0, initialDistance: 0, initialScale: 1 });
+  const scaleStart = useRef({
+    centerX: 0,
+    centerY: 0,
+    initialDistance: 0,
+    initialScale: 1,
+  });
   const scaleInitialState = useRef<EditorState | null>(null);
   const isRotating = useRef(false);
-  const rotateStart = useRef({ centerX: 0, centerY: 0, initialAngle: 0, initialRotation: 0 });
+  const rotateStart = useRef({
+    centerX: 0,
+    centerY: 0,
+    initialAngle: 0,
+    initialRotation: 0,
+  });
   const rotateInitialState = useRef<EditorState | null>(null);
   const is3DRotating = useRef(false);
-  const rotate3DStart = useRef({ x: 0, y: 0, initialRotateX: 0, initialRotateY: 0 });
+  const rotate3DStart = useRef({
+    x: 0,
+    y: 0,
+    initialRotateX: 0,
+    initialRotateY: 0,
+  });
   const rotate3DInitialState = useRef<EditorState | null>(null);
   const [showGuides, setShowGuides] = useState({ x: false, y: false });
 
   const DRAG_SNAP_THRESHOLD = 6;
-  const ROTATION_SNAP_POINTS = [0, 45, 90, 135, 180, 270, 360, -45, -90, -135, -180, -270, -360];
+  const ROTATION_SNAP_POINTS = [
+    0, 45, 90, 135, 180, 270, 360, -45, -90, -135, -180, -270, -360,
+  ];
   const ROTATION_SNAP_THRESHOLD = 3;
   const [snappedAngle, setSnappedAngle] = useState<number | null>(null);
   const [showHandles, setShowHandles] = useState(false);
@@ -159,18 +188,23 @@ export default function ScreenshotEditor() {
           positionY: newY,
         }));
       } else if (isScaling.current) {
-        const { centerX, centerY, initialDistance, initialScale } = scaleStart.current;
+        const { centerX, centerY, initialDistance, initialScale } =
+          scaleStart.current;
         if (initialDistance === 0) return;
         const dx = e.clientX - centerX;
         const dy = e.clientY - centerY;
         const currentDistance = Math.sqrt(dx * dx + dy * dy);
-        const newScale = Math.max(0.1, Math.min(3, initialScale * (currentDistance / initialDistance)));
+        const newScale = Math.max(
+          0.1,
+          Math.min(3, initialScale * (currentDistance / initialDistance)),
+        );
         setState((prev) => ({
           ...prev,
           scale: Number(newScale.toFixed(2)),
         }));
       } else if (isRotating.current) {
-        const { centerX, centerY, initialAngle, initialRotation } = rotateStart.current;
+        const { centerX, centerY, initialAngle, initialRotation } =
+          rotateStart.current;
         const dx = e.clientX - centerX;
         const dy = e.clientY - centerY;
         const currentAngle = Math.atan2(dy, dx) * (180 / Math.PI);
@@ -191,8 +225,18 @@ export default function ScreenshotEditor() {
       } else if (is3DRotating.current) {
         const dx = (e.clientX - rotate3DStart.current.x) / 2;
         const dy = (e.clientY - rotate3DStart.current.y) / 2;
-        const newX = Math.round(Math.max(-90, Math.min(90, rotate3DStart.current.initialRotateX - dy)));
-        const newY = Math.round(Math.max(-90, Math.min(90, rotate3DStart.current.initialRotateY + dx)));
+        const newX = Math.round(
+          Math.max(
+            -90,
+            Math.min(90, rotate3DStart.current.initialRotateX - dy),
+          ),
+        );
+        const newY = Math.round(
+          Math.max(
+            -90,
+            Math.min(90, rotate3DStart.current.initialRotateY + dx),
+          ),
+        );
         setState((prev) => ({
           ...prev,
           rotateX: newX,
@@ -229,11 +273,13 @@ export default function ScreenshotEditor() {
           setShowHandles(false);
         }, 3000);
       }
-      document.body.style.cursor = 'default';
+      document.body.style.cursor = "default";
     };
 
     const handleGlobalClick = (e: MouseEvent) => {
-      const container = (e.target as HTMLElement).closest('[data-transform-container]');
+      const container = (e.target as HTMLElement).closest(
+        "[data-transform-container]",
+      );
       if (!container) {
         setShowHandles(false);
       }
@@ -250,7 +296,7 @@ export default function ScreenshotEditor() {
       document.removeEventListener("mousedown", handleGlobalClick);
       if (handleTimeoutRef.current) clearTimeout(handleTimeoutRef.current);
     };
-  }, []);
+  }, [commit, setState]);
 
   const desktopCanvasRef = useRef<HTMLDivElement>(null);
   const mobileCanvasRef = useRef<HTMLDivElement>(null);
@@ -277,7 +323,10 @@ export default function ScreenshotEditor() {
         if (file) {
           const reader = new FileReader();
           reader.onload = (e) => {
-            resetHistory({ ...INITIAL_STATE, image: e.target?.result as string });
+            resetHistory({
+              ...INITIAL_STATE,
+              image: e.target?.result as string,
+            });
           };
           reader.readAsDataURL(file);
         }
@@ -288,14 +337,19 @@ export default function ScreenshotEditor() {
   useEffect(() => {
     document.addEventListener("paste", handlePaste);
     return () => document.removeEventListener("paste", handlePaste);
-  }, []);
+  }, [handlePaste]);
 
   useEffect(() => {
     let dragCounter = 0;
 
     const handleDragEnter = (e: DragEvent) => {
       e.preventDefault();
-      if (e.dataTransfer?.items && Array.from(e.dataTransfer.items).some(item => item.type.startsWith('image/'))) {
+      if (
+        e.dataTransfer?.items &&
+        Array.from(e.dataTransfer.items).some((item) =>
+          item.type.startsWith("image/"),
+        )
+      ) {
         dragCounter++;
         setIsDraggingFile(true);
       }
@@ -320,10 +374,13 @@ export default function ScreenshotEditor() {
       setIsDraggingFile(false);
 
       const file = e.dataTransfer?.files?.[0];
-      if (file && file.type.startsWith("image/")) {
+      if (file?.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onload = (event) => {
-          resetHistory({ ...INITIAL_STATE, image: event.target?.result as string });
+          resetHistory({
+            ...INITIAL_STATE,
+            image: event.target?.result as string,
+          });
         };
         reader.readAsDataURL(file);
       }
@@ -342,42 +399,6 @@ export default function ScreenshotEditor() {
     };
   }, [resetHistory]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        if (e.key === 'z' || e.key === 'Z') {
-          e.preventDefault();
-          if (e.shiftKey) {
-            redo();
-          } else {
-            undo();
-          }
-        } else if (e.key === 'c' || e.key === 'C') {
-          e.preventDefault();
-          if (state.image) {
-            copyImage();
-          }
-        } else if (e.key === 's' || e.key === 'S') {
-          e.preventDefault();
-          if (state.image) {
-            exportImage();
-          }
-        }
-      }
-
-      if (e.key === '+' || e.key === '=') {
-        e.preventDefault();
-        setCanvasZoom(z => Math.min(3, z + 0.1));
-      } else if (e.key === '-' || e.key === '_') {
-        e.preventDefault();
-        setCanvasZoom(z => Math.max(0.1, z - 0.1));
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [state.image, undo, redo]);
-
   const handleNewUploadClick = () => {
     if (state.image) {
       setShowConfirmDialog(true);
@@ -387,7 +408,9 @@ export default function ScreenshotEditor() {
   };
 
   const exportImage = async () => {
-    const activeCanvas = desktopCanvasRef.current?.offsetParent ? desktopCanvasRef.current : mobileCanvasRef.current;
+    const activeCanvas = desktopCanvasRef.current?.offsetParent
+      ? desktopCanvasRef.current
+      : mobileCanvasRef.current;
     if (activeCanvas) {
       exportImageUtil(activeCanvas);
     }
@@ -395,7 +418,9 @@ export default function ScreenshotEditor() {
 
   const copyImage = async () => {
     if (isCopying) return;
-    const activeCanvas = desktopCanvasRef.current?.offsetParent ? desktopCanvasRef.current : mobileCanvasRef.current;
+    const activeCanvas = desktopCanvasRef.current?.offsetParent
+      ? desktopCanvasRef.current
+      : mobileCanvasRef.current;
     if (activeCanvas) {
       setIsCopying(true);
       setCopyMessage("Copying...");
@@ -405,6 +430,42 @@ export default function ScreenshotEditor() {
       setTimeout(() => setCopyMessage(""), 2000);
     }
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === "z" || e.key === "Z") {
+          e.preventDefault();
+          if (e.shiftKey) {
+            redo();
+          } else {
+            undo();
+          }
+        } else if (e.key === "c" || e.key === "C") {
+          e.preventDefault();
+          if (state.image) {
+            copyImage();
+          }
+        } else if (e.key === "s" || e.key === "S") {
+          e.preventDefault();
+          if (state.image) {
+            exportImage();
+          }
+        }
+      }
+
+      if (e.key === "+" || e.key === "=") {
+        e.preventDefault();
+        setCanvasZoom((z) => Math.min(3, z + 0.1));
+      } else if (e.key === "-" || e.key === "_") {
+        e.preventDefault();
+        setCanvasZoom((z) => Math.max(0.1, z - 0.1));
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [state.image, undo, redo, copyImage, exportImage, setCanvasZoom]);
 
   const shadowString = state.shadows
     .filter((s) => s.enabled)
@@ -433,15 +494,35 @@ export default function ScreenshotEditor() {
 
     switch (activeTab) {
       case "background":
-        return <BackgroundControls state={state} setState={setState} commit={commit} />;
+        return (
+          <BackgroundControls
+            state={state}
+            setState={setState}
+            commit={commit}
+          />
+        );
       case "styling":
-        return <TransformControls state={state} setState={setState} commit={commit} onCropClick={() => setShowCropTool(true)} isCropDisabled={!state.image} />;
+        return (
+          <TransformControls
+            state={state}
+            setState={setState}
+            commit={commit}
+            onCropClick={() => setShowCropTool(true)}
+            isCropDisabled={!state.image}
+          />
+        );
       case "shadow":
-        return <ShadowControls state={state} setState={setState} commit={commit} />;
+        return (
+          <ShadowControls state={state} setState={setState} commit={commit} />
+        );
       case "border":
-        return <BorderControls state={state} setState={setState} commit={commit} />;
+        return (
+          <BorderControls state={state} setState={setState} commit={commit} />
+        );
       case "window":
-        return <WindowControls state={state} setState={setState} commit={commit} />;
+        return (
+          <WindowControls state={state} setState={setState} commit={commit} />
+        );
       default:
         return null;
     }
@@ -451,13 +532,22 @@ export default function ScreenshotEditor() {
     <>
       {!state.image ? (
         <div
-          className={`text-center text-muted-foreground cursor-pointer rounded-xl p-8 transition-all duration-200 ${isDraggingFile ? "bg-primary/5 border-2 border-dashed border-primary scale-105" : "hover:bg-accent/20"
-            }`}
+          className={`text-center text-muted-foreground cursor-pointer rounded-xl p-8 transition-all duration-200 ${
+            isDraggingFile
+              ? "bg-primary/5 border-2 border-dashed border-primary scale-105"
+              : "hover:bg-accent/20"
+          }`}
           onClick={() => fileInputRef.current?.click()}
         >
-          <Upload className={`w-16 h-16 mx-auto mb-4 ${isDraggingFile ? 'text-primary animate-bounce opacity-100' : 'opacity-30'}`} />
-          <p className={`text-lg font-medium ${isDraggingFile ? 'text-primary' : ''}`}>
-            {isDraggingFile ? "Drop image here" : "Upload, paste or drop an image to get started"}
+          <Upload
+            className={`w-16 h-16 mx-auto mb-4 ${isDraggingFile ? "text-primary animate-bounce opacity-100" : "opacity-30"}`}
+          />
+          <p
+            className={`text-lg font-medium ${isDraggingFile ? "text-primary" : ""}`}
+          >
+            {isDraggingFile
+              ? "Drop image here"
+              : "Upload, paste or drop an image to get started"}
           </p>
           <p className="text-sm mt-2 text-muted-foreground/60">
             Shortcuts: Ctrl+C (Copy), Ctrl+S (Export), Ctrl+V (Paste)
@@ -469,10 +559,19 @@ export default function ScreenshotEditor() {
           className={`relative overflow-hidden flex items-center justify-center select-none ${state.aspectRatio === "auto" ? "" : "w-[800px] max-w-full"}`}
           style={{
             padding: `${state.padding}px`,
-            aspectRatio: state.aspectRatio === "auto" ? "auto" : state.aspectRatio.replace(":", "/"),
-            touchAction: 'none',
-            perspective: state.rotateX || state.rotateY || state.rotateZ ? `${state.perspective}px` : undefined,
-            transformStyle: state.rotateX || state.rotateY || state.rotateZ ? 'preserve-3d' : undefined
+            aspectRatio:
+              state.aspectRatio === "auto"
+                ? "auto"
+                : state.aspectRatio.replace(":", "/"),
+            touchAction: "none",
+            perspective:
+              state.rotateX || state.rotateY || state.rotateZ
+                ? `${state.perspective}px`
+                : undefined,
+            transformStyle:
+              state.rotateX || state.rotateY || state.rotateZ
+                ? "preserve-3d"
+                : undefined,
           }}
           onPointerDown={(e) => {
             e.preventDefault();
@@ -484,7 +583,8 @@ export default function ScreenshotEditor() {
             };
 
             setShowHandles(true);
-            if (handleTimeoutRef.current) clearTimeout(handleTimeoutRef.current);
+            if (handleTimeoutRef.current)
+              clearTimeout(handleTimeoutRef.current);
             handleTimeoutRef.current = setTimeout(() => {
               setShowHandles(false);
             }, 3000);
@@ -494,8 +594,12 @@ export default function ScreenshotEditor() {
             className="absolute pointer-events-none"
             style={{
               background: state.background.value,
-              filter: state.backgroundBlur > 0 ? `blur(${state.backgroundBlur}px)` : undefined,
-              inset: state.backgroundBlur > 0 ? `-${state.backgroundBlur}px` : 0,
+              filter:
+                state.backgroundBlur > 0
+                  ? `blur(${state.backgroundBlur}px)`
+                  : undefined,
+              inset:
+                state.backgroundBlur > 0 ? `-${state.backgroundBlur}px` : 0,
             }}
           />
           {state.backgroundTintOpacity > 0 && (
@@ -534,7 +638,9 @@ export default function ScreenshotEditor() {
               e.stopPropagation();
               isScaling.current = true;
               scaleInitialState.current = state;
-              const container = (e.target as HTMLElement).closest('[data-transform-container]');
+              const container = (e.target as HTMLElement).closest(
+                "[data-transform-container]",
+              );
               if (container) {
                 const rect = container.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
@@ -542,16 +648,23 @@ export default function ScreenshotEditor() {
                 const dx = e.clientX - centerX;
                 const dy = e.clientY - centerY;
                 const initialDistance = Math.sqrt(dx * dx + dy * dy);
-                scaleStart.current = { centerX, centerY, initialDistance, initialScale: state.scale };
+                scaleStart.current = {
+                  centerX,
+                  centerY,
+                  initialDistance,
+                  initialScale: state.scale,
+                };
               }
-              document.body.style.cursor = 'nwse-resize';
+              document.body.style.cursor = "nwse-resize";
             }}
             onRotateStart={(e: React.PointerEvent<HTMLDivElement>) => {
               e.preventDefault();
               e.stopPropagation();
               isRotating.current = true;
               rotateInitialState.current = state;
-              const container = (e.target as HTMLElement).closest('[data-transform-container]');
+              const container = (e.target as HTMLElement).closest(
+                "[data-transform-container]",
+              );
               if (container) {
                 const rect = container.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
@@ -559,9 +672,14 @@ export default function ScreenshotEditor() {
                 const dx = e.clientX - centerX;
                 const dy = e.clientY - centerY;
                 const initialAngle = Math.atan2(dy, dx) * (180 / Math.PI);
-                rotateStart.current = { centerX, centerY, initialAngle, initialRotation: state.rotation };
+                rotateStart.current = {
+                  centerX,
+                  centerY,
+                  initialAngle,
+                  initialRotation: state.rotation,
+                };
               }
-              document.body.style.cursor = 'grabbing';
+              document.body.style.cursor = "grabbing";
             }}
             on3DRotateStart={(e: React.PointerEvent<HTMLDivElement>) => {
               e.preventDefault();
@@ -574,18 +692,39 @@ export default function ScreenshotEditor() {
                 initialRotateX: state.rotateX,
                 initialRotateY: state.rotateY,
               };
-              document.body.style.cursor = 'grabbing';
+              document.body.style.cursor = "grabbing";
             }}
           />
 
-
           {(showGuides.x || showGuides.y) && (
-            <svg className="absolute inset-0 w-full h-full pointer-events-none z-50 overflow-visible" preserveAspectRatio="none">
-              {showGuides.x && <line x1="50%" y1="0" x2="50%" y2="100%" stroke="#ff3b3b" strokeWidth="1" vectorEffect="non-scaling-stroke" />}
-              {showGuides.y && <line x1="0" y1="50%" x2="100%" y2="50%" stroke="#ff3b3b" strokeWidth="1" vectorEffect="non-scaling-stroke" />}
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none z-50 overflow-visible"
+              preserveAspectRatio="none"
+            >
+              {showGuides.x && (
+                <line
+                  x1="50%"
+                  y1="0"
+                  x2="50%"
+                  y2="100%"
+                  stroke="#ff3b3b"
+                  strokeWidth="1"
+                  vectorEffect="non-scaling-stroke"
+                />
+              )}
+              {showGuides.y && (
+                <line
+                  x1="0"
+                  y1="50%"
+                  x2="100%"
+                  y2="50%"
+                  stroke="#ff3b3b"
+                  strokeWidth="1"
+                  vectorEffect="non-scaling-stroke"
+                />
+              )}
             </svg>
           )}
-
 
           {snappedAngle !== null && (
             <div className="absolute top-3 left-1/2 -translate-x-1/2 pointer-events-none z-50">
@@ -599,7 +738,10 @@ export default function ScreenshotEditor() {
     </>
   );
 
-  const renderTabButton = (tab: typeof tabs[0], layout: "sidebar" | "bottom") => {
+  const renderTabButton = (
+    tab: (typeof tabs)[0],
+    layout: "sidebar" | "bottom",
+  ) => {
     const Icon = tab.icon;
     const isActive = activeTab === tab.id;
 
@@ -608,14 +750,17 @@ export default function ScreenshotEditor() {
         <button
           key={tab.id}
           onClick={() => handleTabClick(tab.id)}
-          className={`flex flex-col items-center gap-1.5 px-2 py-3.5 rounded-xl transition-all w-full ${isActive
-            ? "bg-accent text-accent-foreground"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-            }`}
+          className={`flex flex-col items-center gap-1.5 px-2 py-3.5 rounded-xl transition-all w-full ${
+            isActive
+              ? "bg-accent text-accent-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+          }`}
           title={tab.label}
         >
           <Icon className="w-5 h-5" />
-          <span className="text-[10px] font-medium leading-tight">{tab.label}</span>
+          <span className="text-[10px] font-medium leading-tight">
+            {tab.label}
+          </span>
         </button>
       );
     }
@@ -624,10 +769,11 @@ export default function ScreenshotEditor() {
       <button
         key={tab.id}
         onClick={() => handleTabClick(tab.id)}
-        className={`flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-lg transition-all ${isActive
-          ? "bg-accent text-accent-foreground"
-          : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-          }`}
+        className={`flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-lg transition-all ${
+          isActive
+            ? "bg-accent text-accent-foreground"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+        }`}
       >
         <Icon className="w-4 h-4" />
         <span className="text-xs font-medium">{tab.label}</span>
@@ -641,8 +787,14 @@ export default function ScreenshotEditor() {
         <header className="border-b border-border/50 bg-background/30 backdrop-blur-md shadow-lg flex-shrink-0">
           <div className="px-2 sm:px-6 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <img src="/favicon.ico" alt="Screen Pastel" className="w-5 h-5 sm:w-6 sm:h-6" />
-              <h1 className="text-base sm:text-lg font-semibold">Screen Pastel</h1>
+              <img
+                src="/favicon.ico"
+                alt="Screen Pastel"
+                className="w-5 h-5 sm:w-6 sm:h-6"
+              />
+              <h1 className="text-base sm:text-lg font-semibold">
+                Screen Pastel
+              </h1>
             </div>
 
             <div className="flex items-center gap-1 sm:gap-2">
@@ -679,8 +831,14 @@ export default function ScreenshotEditor() {
                 onClick={handleNewUploadClick}
                 className="text-muted-foreground hover:text-foreground hover:bg-accent px-2 sm:px-3"
               >
-                {state.image ? <Trash2 className="w-4 h-4" /> : <Upload className="w-4 h-4" />}
-                <span className="hidden sm:inline">{state.image ? "Remove" : "Upload"}</span>
+                {state.image ? (
+                  <Trash2 className="w-4 h-4" />
+                ) : (
+                  <Upload className="w-4 h-4" />
+                )}
+                <span className="hidden sm:inline">
+                  {state.image ? "Remove" : "Upload"}
+                </span>
               </Button>
               <Button
                 variant="ghost"
@@ -697,7 +855,9 @@ export default function ScreenshotEditor() {
                 ) : (
                   <Copy className="w-4 h-4" />
                 )}
-                <span className="hidden sm:inline">{copyMessage || "Copy"}</span>
+                <span className="hidden sm:inline">
+                  {copyMessage || "Copy"}
+                </span>
               </Button>
               <Button
                 onClick={exportImage}
@@ -711,15 +871,11 @@ export default function ScreenshotEditor() {
           </div>
         </header>
 
-
         <div className="hidden md:flex flex-1 overflow-hidden">
-
           <aside className="flex flex-shrink-0 border-r border-border/50 bg-background/30 backdrop-blur-md h-full">
-
             <nav className="flex flex-col gap-0.5 p-1.5 w-[72px] border-r border-border/30">
               {tabs.map((tab) => renderTabButton(tab, "sidebar"))}
             </nav>
-
 
             {activeTab && (
               <div className="w-[280px] overflow-y-auto sidebar-scroll select-none">
@@ -733,7 +889,6 @@ export default function ScreenshotEditor() {
             )}
           </aside>
 
-
           <main className="flex-1 p-8 flex items-center justify-center bg-background/50 backdrop-blur-sm relative overflow-hidden">
             <FloatingToolbar
               state={state}
@@ -742,14 +897,16 @@ export default function ScreenshotEditor() {
             />
             <div
               className="origin-center"
-              style={{ transform: state.image ? `scale(${canvasZoom})` : 'none' }}
+              style={{
+                transform: state.image ? `scale(${canvasZoom})` : "none",
+              }}
             >
               {renderCanvas(desktopCanvasRef)}
             </div>
 
             <div className="absolute bottom-6 right-6 z-50 flex items-center gap-3 bg-background/80 backdrop-blur-md px-4 py-2 rounded-full border border-border/50 shadow-lg select-none">
               <button
-                onClick={() => setCanvasZoom(z => Math.max(0.1, z - 0.1))}
+                onClick={() => setCanvasZoom((z) => Math.max(0.1, z - 0.1))}
                 className="text-muted-foreground hover:text-foreground transition-colors"
                 title="Zoom Out"
               >
@@ -764,7 +921,7 @@ export default function ScreenshotEditor() {
                 className="w-24"
               />
               <button
-                onClick={() => setCanvasZoom(z => Math.min(3, z + 0.1))}
+                onClick={() => setCanvasZoom((z) => Math.min(3, z + 0.1))}
                 className="text-muted-foreground hover:text-foreground transition-colors"
                 title="Zoom In"
               >
@@ -781,7 +938,6 @@ export default function ScreenshotEditor() {
           </main>
         </div>
 
-
         <main className="md:hidden flex-1 p-2 pb-36 flex items-center justify-center bg-background/50 backdrop-blur-sm relative overflow-hidden">
           <FloatingToolbar
             state={state}
@@ -790,13 +946,18 @@ export default function ScreenshotEditor() {
           />
           <div
             className="origin-center"
-            style={{ transform: state.image ? `scale(${canvasZoom * 0.75})` : 'none' }}
+            style={{
+              transform: state.image ? `scale(${canvasZoom * 0.75})` : "none",
+            }}
           >
             {renderCanvas(mobileCanvasRef)}
           </div>
 
           <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-background/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-border/50 shadow-lg select-none">
-            <button onClick={() => setCanvasZoom(z => Math.max(0.1, z - 0.1))} className="text-muted-foreground hover:text-foreground">
+            <button
+              onClick={() => setCanvasZoom((z) => Math.max(0.1, z - 0.1))}
+              className="text-muted-foreground hover:text-foreground"
+            >
               <Minus className="w-3 h-3" />
             </button>
             <span
@@ -805,17 +966,21 @@ export default function ScreenshotEditor() {
             >
               {Math.round(canvasZoom * 100)}%
             </span>
-            <button onClick={() => setCanvasZoom(z => Math.min(3, z + 0.1))} className="text-muted-foreground hover:text-foreground">
+            <button
+              onClick={() => setCanvasZoom((z) => Math.min(3, z + 0.1))}
+              className="text-muted-foreground hover:text-foreground"
+            >
               <Plus className="w-3 h-3" />
             </button>
           </div>
         </main>
       </div>
 
-
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-20 border-t border-border/30 bg-background/20 backdrop-blur-xl shadow-2xl shadow-black/20">
         {activeTab && (
-          <div className="px-4 py-3 max-h-[50vh] overflow-y-auto sidebar-scroll select-none">{renderTabContent()}</div>
+          <div className="px-4 py-3 max-h-[50vh] overflow-y-auto sidebar-scroll select-none">
+            {renderTabContent()}
+          </div>
         )}
         <div
           className={`flex items-center justify-center gap-1 px-2 py-2 ${activeTab ? "border-t border-border" : ""} overflow-x-auto`}
@@ -840,17 +1005,23 @@ export default function ScreenshotEditor() {
           <DialogHeader>
             <DialogTitle>Remove current image?</DialogTitle>
             <DialogDescription>
-              This will remove your current image and return you to the upload screen. You won't be able to recover your changes.
+              This will remove your current image and return you to the upload
+              screen. You won't be able to recover your changes.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={() => {
-              resetHistory(INITIAL_STATE);
-              setShowConfirmDialog(false);
-            }}>
+            <Button
+              onClick={() => {
+                resetHistory(INITIAL_STATE);
+                setShowConfirmDialog(false);
+              }}
+            >
               Remove
             </Button>
           </DialogFooter>

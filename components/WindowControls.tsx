@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
 import type React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ChevronDown } from "lucide-react";
 import { FRAMES } from "../lib/data";
 import type { EditorState } from "../lib/types";
 import Slider from "./Slider";
@@ -27,7 +27,9 @@ export default function WindowControls({
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">Frame Details</h3>
+        <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">
+          Frame Details
+        </h3>
         <div className="grid grid-cols-1 gap-4 pt-2">
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">Frame Type</Label>
@@ -90,7 +92,9 @@ export default function WindowControls({
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">Window Stacking</h3>
+        <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">
+          Window Stacking
+        </h3>
         <div className="grid grid-cols-1 gap-4 pt-2">
           <div className="flex items-center space-x-3">
             <Switch
@@ -110,14 +114,18 @@ export default function WindowControls({
           {state.stack.enabled && (
             <>
               <div className="space-y-2">
-                <Label className="text-xs text-muted-foreground">Effect Type</Label>
+                <Label className="text-xs text-muted-foreground">
+                  Effect Type
+                </Label>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
                       className="w-full justify-between bg-secondary/50 backdrop-blur-sm border-border/50 hover:bg-accent/80"
                     >
-                      {state.stack.effect === "default" ? "Default" : "Silhouette"}
+                      {state.stack.effect === "default"
+                        ? "Default"
+                        : "Silhouette"}
                       <ChevronDown className="w-4 h-4 ml-auto opacity-50" />
                     </Button>
                   </DropdownMenuTrigger>

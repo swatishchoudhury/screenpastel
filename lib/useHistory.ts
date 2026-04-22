@@ -25,13 +25,15 @@ export function useHistory(initial: EditorState) {
   const setState = useCallback((update: React.SetStateAction<EditorState>) => {
     setHist((prev) => ({
       ...prev,
-      current: typeof update === "function" ? (update as any)(prev.current) : update,
+      current:
+        typeof update === "function" ? (update as any)(prev.current) : update,
     }));
   }, []);
 
   const commit = useCallback((update: StateUpdater) => {
     setHist((prev) => {
-      const nextState = typeof update === "function" ? update(prev.current) : update;
+      const nextState =
+        typeof update === "function" ? update(prev.current) : update;
 
       if (prev.lastCommitted !== nextState) {
         return {

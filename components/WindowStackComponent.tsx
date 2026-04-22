@@ -1,5 +1,5 @@
+import { Move3d, RotateCw } from "lucide-react";
 import type React from "react";
-import { RotateCw, Move3d } from "lucide-react";
 import WindowFrameComponent from "./WindowFrameComponent";
 
 interface WindowStackComponentProps {
@@ -59,27 +59,44 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
 }) => {
   const renderResizeHandles = () => {
     if (!onScaleStart) return null;
-    const hitArea = "absolute flex items-center justify-center pointer-events-auto z-50 w-10 h-10 -translate-x-1/2 -translate-y-1/2 touch-none";
+    const hitArea =
+      "absolute flex items-center justify-center pointer-events-auto z-50 w-10 h-10 -translate-x-1/2 -translate-y-1/2 touch-none";
     const dot = `w-3.5 h-3.5 md:w-3 md:h-3 border border-primary/60 bg-background/90 rounded-full transition-[opacity,transform] hover:scale-110 shadow-sm md:hover:border-primary ${showHandles ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`;
 
     return (
       <>
-        <div className={`${hitArea} cursor-nwse-resize`} style={{ top: 0, left: 0 }} onPointerDown={onScaleStart}>
+        <div
+          className={`${hitArea} cursor-nwse-resize`}
+          style={{ top: 0, left: 0 }}
+          onPointerDown={onScaleStart}
+        >
           <div className={dot} />
         </div>
-        <div className={`${hitArea} cursor-nesw-resize`} style={{ top: 0, left: '100%' }} onPointerDown={onScaleStart}>
+        <div
+          className={`${hitArea} cursor-nesw-resize`}
+          style={{ top: 0, left: "100%" }}
+          onPointerDown={onScaleStart}
+        >
           <div className={dot} />
         </div>
-        <div className={`${hitArea} cursor-nesw-resize`} style={{ top: '100%', left: 0 }} onPointerDown={onScaleStart}>
+        <div
+          className={`${hitArea} cursor-nesw-resize`}
+          style={{ top: "100%", left: 0 }}
+          onPointerDown={onScaleStart}
+        >
           <div className={dot} />
         </div>
-        <div className={`${hitArea} cursor-nwse-resize`} style={{ top: '100%', left: '100%' }} onPointerDown={onScaleStart}>
+        <div
+          className={`${hitArea} cursor-nwse-resize`}
+          style={{ top: "100%", left: "100%" }}
+          onPointerDown={onScaleStart}
+        >
           <div className={dot} />
         </div>
         {onRotateStart && (
           <div
             className={`absolute left-1/2 flex flex-col items-center transition-opacity z-50 pointer-events-auto touch-none ${showHandles ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
-            style={{ top: '-40px', transform: 'translateX(-50%)' }}
+            style={{ top: "-40px", transform: "translateX(-50%)" }}
           >
             <div
               className="flex items-center justify-center p-2 cursor-grab text-primary/80 hover:text-primary transition-colors"
@@ -95,14 +112,18 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
         )}
         {on3DRotateStart && (
           <div
-            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-opacity z-50 pointer-events-auto touch-none ${showHandles ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-              }`}
+            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-opacity z-50 pointer-events-auto touch-none ${
+              showHandles ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            }`}
             onPointerDown={on3DRotateStart}
           >
             <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-background/20 backdrop-blur-md border border-white/30 shadow-2xl cursor-grab active:cursor-grabbing hover:scale-110 transition-transform group/3d overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-50" />
               <div className="relative flex items-center justify-center w-10 h-10 rounded-full border border-white/40 bg-white/10 shadow-inner">
-                <Move3d className="w-5 h-5 text-white drop-shadow-sm" strokeWidth={1.5} />
+                <Move3d
+                  className="w-5 h-5 text-white drop-shadow-sm"
+                  strokeWidth={1.5}
+                />
               </div>
               <div className="absolute inset-0 border-[6px] border-white/5 rounded-full pointer-events-none" />
             </div>
@@ -119,7 +140,7 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
         data-transform-container
         className="relative inline-flex items-center justify-center cursor-move group"
         style={{
-          transform: `translateX(${positionX}px) translateY(${positionY}px) scale(${scale}) rotate(${rotation}deg)${has3D ? ` rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)` : ''}`,
+          transform: `translateX(${positionX}px) translateY(${positionY}px) scale(${scale}) rotate(${rotation}deg)${has3D ? ` rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)` : ""}`,
           transformStyle: has3D ? "preserve-3d" : undefined,
         }}
       >
@@ -152,12 +173,7 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
 
   const renderImage = (isStack: boolean) => {
     if (isStack && stack.effect === "silhouette") {
-      return (
-        <div
-          className="bg-black opacity-50"
-          style={{ height: "45vh" }}
-        />
-      );
+      return <div className="bg-black opacity-50" style={{ height: "45vh" }} />;
     }
     return (
       <img
@@ -178,7 +194,7 @@ const WindowStackComponent: React.FC<WindowStackComponentProps> = ({
       data-transform-container
       className="relative inline-flex items-center justify-center cursor-move group"
       style={{
-        transform: `translateX(${positionX}px) translateY(${positionY}px) scale(${scale}) rotate(${rotation}deg)${has3D ? ` rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)` : ''}`,
+        transform: `translateX(${positionX}px) translateY(${positionY}px) scale(${scale}) rotate(${rotation}deg)${has3D ? ` rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)` : ""}`,
         transformStyle: has3D ? "preserve-3d" : undefined,
       }}
     >

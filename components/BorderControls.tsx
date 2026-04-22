@@ -3,8 +3,8 @@
 import type React from "react";
 
 import type { EditorState } from "../lib/types";
-import Slider from "./Slider";
 import ColorSwatch from "./ColorSwatch";
+import Slider from "./Slider";
 
 export default function BorderControls({
   state,
@@ -18,7 +18,9 @@ export default function BorderControls({
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">Border Outline</h3>
+        <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">
+          Border Outline
+        </h3>
         <div className="grid grid-cols-1 gap-4 pt-2">
           <Slider
             label="Width"
@@ -40,15 +42,15 @@ export default function BorderControls({
             unit="px"
           />
           <ColorSwatch
-              label="Border Color"
-              value={state.border.color}
-              onChange={(color) =>
-                commit((prev) => ({
-                  ...prev,
-                  border: { ...prev.border, color },
-                }))
-              }
-            />
+            label="Border Color"
+            value={state.border.color}
+            onChange={(color) =>
+              commit((prev) => ({
+                ...prev,
+                border: { ...prev.border, color },
+              }))
+            }
+          />
           <Slider
             label="Border Radius"
             value={state.borderRadius}

@@ -18,15 +18,15 @@ export const metadata: Metadata = {
   openGraph: {
     images: [
       {
-        url: '/og.png',
+        url: "/og.png",
         width: 1182,
         height: 763,
-        alt: 'Screen Pastel - Create Beautiful Screenshots',
+        alt: "Screen Pastel - Create Beautiful Screenshots",
       },
     ],
   },
   twitter: {
-    images: ['/og.png'],
+    images: ["/og.png"],
   },
 };
 

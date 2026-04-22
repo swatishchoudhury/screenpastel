@@ -1,6 +1,5 @@
 import type React from "react";
 import {
-  Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,

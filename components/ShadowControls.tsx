@@ -3,8 +3,8 @@
 import type React from "react";
 
 import type { EditorState } from "../lib/types";
-import Slider from "./Slider";
 import ColorSwatch from "./ColorSwatch";
+import Slider from "./Slider";
 
 export default function ShadowControls({
   state,
@@ -18,7 +18,9 @@ export default function ShadowControls({
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">Size & Position</h3>
+        <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">
+          Size & Position
+        </h3>
         <div className="grid grid-cols-1 gap-4 pt-2">
           <Slider
             label="Offset X"
@@ -81,7 +83,9 @@ export default function ShadowControls({
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">Appearance</h3>
+        <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">
+          Appearance
+        </h3>
         <div className="grid grid-cols-1 gap-4 pt-2">
           <Slider
             label="Opacity"
@@ -103,15 +107,15 @@ export default function ShadowControls({
             step={0.01}
           />
           <ColorSwatch
-              label="Shadow Color"
-              value={state.shadows[0].color}
-              onChange={(color) =>
-                commit((prev) => ({
-                  ...prev,
-                  shadows: [{ ...prev.shadows[0], color }],
-                }))
-              }
-            />
+            label="Shadow Color"
+            value={state.shadows[0].color}
+            onChange={(color) =>
+              commit((prev) => ({
+                ...prev,
+                shadows: [{ ...prev.shadows[0], color }],
+              }))
+            }
+          />
         </div>
       </div>
     </div>

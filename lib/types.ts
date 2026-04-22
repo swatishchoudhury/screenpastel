@@ -76,4 +76,11 @@ interface EditorState {
   rotateZ: number;
 }
 
-export type { WindowFrame, Background, Theme, ShadowLayer, StackConfig, EditorState };
+export type {
+  WindowFrame,
+  Background,
+  Theme,
+  ShadowLayer,
+  StackConfig,
+  EditorState,
+};
