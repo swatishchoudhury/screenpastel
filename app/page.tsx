@@ -81,8 +81,13 @@ const INITIAL_STATE: EditorState = {
     effect: "default",
   },
   frameDarkMode: true,
-  customGradient: { color1: "#ff9a9e", color2: "#fecfef" },
-  gradientDirection: 135,
+  gradient: {
+    direction: 135,
+    stops: [
+      { id: "1", position: 0, color: "#a8edea", opacity: 100 },
+      { id: "2", position: 100, color: "#fed6e3", opacity: 100 },
+    ],
+  },
   address: "https://screenpastel.vercel.app",
   backgroundTintColor: "#000000",
   backgroundTintOpacity: 0,
@@ -96,6 +101,27 @@ const INITIAL_STATE: EditorState = {
   rotateX: 0,
   rotateY: 0,
   rotateZ: 0,
+};
+
+const mergeStateWithNewImage = (
+  currentState: EditorState,
+  newImage: string | null,
+): EditorState => {
+  return {
+    ...currentState,
+    image: newImage,
+    scale: INITIAL_STATE.scale,
+    rotation: INITIAL_STATE.rotation,
+    positionX: INITIAL_STATE.positionX,
+    positionY: INITIAL_STATE.positionY,
+    aspectRatio: INITIAL_STATE.aspectRatio,
+    flipX: INITIAL_STATE.flipX,
+    flipY: INITIAL_STATE.flipY,
+    perspective: INITIAL_STATE.perspective,
+    rotateX: INITIAL_STATE.rotateX,
+    rotateY: INITIAL_STATE.rotateY,
+    rotateZ: INITIAL_STATE.rotateZ,
+  };
 };
 
 export default function ScreenshotEditor() {
@@ -307,7 +333,9 @@ export default function ScreenshotEditor() {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        resetHistory({ ...INITIAL_STATE, image: e.target?.result as string });
+        resetHistory(
+          mergeStateWithNewImage(state, e.target?.result as string),
+        );
       };
       reader.readAsDataURL(file);
     }
@@ -323,10 +351,9 @@ export default function ScreenshotEditor() {
         if (file) {
           const reader = new FileReader();
           reader.onload = (e) => {
-            resetHistory({
-              ...INITIAL_STATE,
-              image: e.target?.result as string,
-            });
+            resetHistory(
+              mergeStateWithNewImage(state, e.target?.result as string),
+            );
           };
           reader.readAsDataURL(file);
         }
@@ -377,10 +404,9 @@ export default function ScreenshotEditor() {
       if (file?.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onload = (event) => {
-          resetHistory({
-            ...INITIAL_STATE,
-            image: event.target?.result as string,
-          });
+          resetHistory(
+            mergeStateWithNewImage(state, event.target?.result as string),
+          );
         };
         reader.readAsDataURL(file);
       }
@@ -532,11 +558,10 @@ export default function ScreenshotEditor() {
     <>
       {!state.image ? (
         <div
-          className={`text-center text-muted-foreground cursor-pointer rounded-xl p-8 transition-all duration-200 ${
-            isDraggingFile
-              ? "bg-primary/5 border-2 border-dashed border-primary scale-105"
-              : "hover:bg-accent/20"
-          }`}
+          className={`text-center text-muted-foreground cursor-pointer rounded-xl p-8 transition-all duration-200 ${isDraggingFile
+            ? "bg-primary/5 border-2 border-dashed border-primary scale-105"
+            : "hover:bg-accent/20"
+            }`}
           onClick={() => fileInputRef.current?.click()}
         >
           <Upload
@@ -750,11 +775,10 @@ export default function ScreenshotEditor() {
         <button
           key={tab.id}
           onClick={() => handleTabClick(tab.id)}
-          className={`flex flex-col items-center gap-1.5 px-2 py-3.5 rounded-xl transition-all w-full ${
-            isActive
-              ? "bg-accent text-accent-foreground"
-              : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-          }`}
+          className={`flex flex-col items-center gap-1.5 px-2 py-3.5 rounded-xl transition-all w-full ${isActive
+            ? "bg-accent text-accent-foreground"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+            }`}
           title={tab.label}
         >
           <Icon className="w-5 h-5" />
@@ -769,11 +793,10 @@ export default function ScreenshotEditor() {
       <button
         key={tab.id}
         onClick={() => handleTabClick(tab.id)}
-        className={`flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-lg transition-all ${
-          isActive
-            ? "bg-accent text-accent-foreground"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-        }`}
+        className={`flex flex-col items-center gap-1.5 px-2 py-2.5 rounded-lg transition-all ${isActive
+          ? "bg-accent text-accent-foreground"
+          : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+          }`}
       >
         <Icon className="w-4 h-4" />
         <span className="text-xs font-medium">{tab.label}</span>
@@ -785,26 +808,27 @@ export default function ScreenshotEditor() {
     <>
       <div className="h-screen bg-background/80 backdrop-blur-sm text-foreground flex flex-col">
         <header className="border-b border-border/50 bg-background/30 backdrop-blur-md shadow-lg flex-shrink-0">
-          <div className="px-2 sm:px-6 py-2 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+          <div className="px-1.5 sm:px-6 py-2 flex items-center justify-between">
+            <div className="flex items-center gap-2">
               <img
                 src="/favicon.ico"
                 alt="Screen Pastel"
                 className="w-5 h-5 sm:w-6 sm:h-6"
               />
-              <h1 className="text-base sm:text-lg font-semibold">
-                Screen Pastel
+              <h1 className="text-[10px] sm:text-[11px] font-bold leading-none flex flex-col uppercase tracking-wider">
+                <span>Screen</span>
+                <span className="text-primary">Pastel</span>
               </h1>
             </div>
 
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-0.5 sm:gap-2">
               <About />
-              <div className="h-4 w-px bg-border mx-1" />
+              <div className="h-4 w-px bg-border mx-0.5 sm:mx-1" />
               <Button
                 variant="ghost"
                 onClick={undo}
                 disabled={!canUndo}
-                className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-muted-foreground/40 px-2"
+                className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-muted-foreground/40 px-1 sm:px-2"
                 title="Undo (Ctrl+Z)"
               >
                 <Undo2 className="w-4 h-4" />
@@ -813,12 +837,12 @@ export default function ScreenshotEditor() {
                 variant="ghost"
                 onClick={redo}
                 disabled={!canRedo}
-                className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-muted-foreground/40 px-2"
+                className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-muted-foreground/40 px-1 sm:px-2"
                 title="Redo (Ctrl+Shift+Z)"
               >
                 <Redo2 className="w-4 h-4" />
               </Button>
-              <div className="h-4 w-px bg-border mx-1" />
+              <div className="h-4 w-px bg-border mx-0.5 sm:mx-1" />
               <input
                 ref={fileInputRef}
                 type="file"
@@ -829,7 +853,7 @@ export default function ScreenshotEditor() {
               <Button
                 variant="ghost"
                 onClick={handleNewUploadClick}
-                className="text-muted-foreground hover:text-foreground hover:bg-accent px-2 sm:px-3"
+                className="text-muted-foreground hover:text-foreground hover:bg-accent px-1 sm:px-3"
               >
                 {state.image ? (
                   <Trash2 className="w-4 h-4" />
@@ -844,7 +868,7 @@ export default function ScreenshotEditor() {
                 variant="ghost"
                 onClick={copyImage}
                 disabled={!state.image || isCopying}
-                className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-muted-foreground px-2 sm:px-3"
+                className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-muted-foreground px-1 sm:px-3"
               >
                 {isCopying ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -862,7 +886,7 @@ export default function ScreenshotEditor() {
               <Button
                 onClick={exportImage}
                 disabled={!state.image}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground px-2 sm:px-3"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground px-1.5 sm:px-3"
               >
                 <Download className="w-4 h-4" />
                 <span className="hidden sm:inline">Export</span>
@@ -878,7 +902,7 @@ export default function ScreenshotEditor() {
             </nav>
 
             {activeTab && (
-              <div className="w-[280px] overflow-y-auto sidebar-scroll select-none">
+              <div className="w-[300px] overflow-y-auto sidebar-scroll select-none">
                 <div className="p-4">
                   <h2 className="text-base font-semibold text-foreground mb-4">
                     {tabs.find((t) => t.id === activeTab)?.label}
@@ -983,7 +1007,7 @@ export default function ScreenshotEditor() {
           </div>
         )}
         <div
-          className={`flex items-center justify-center gap-1 px-2 py-2 ${activeTab ? "border-t border-border" : ""} overflow-x-auto`}
+          className={`flex items-center justify-around gap-0 px-1 py-2 ${activeTab ? "border-t border-border" : ""}`}
         >
           {tabs.map((tab) => renderTabButton(tab, "bottom"))}
         </div>
@@ -1018,7 +1042,7 @@ export default function ScreenshotEditor() {
             </Button>
             <Button
               onClick={() => {
-                resetHistory(INITIAL_STATE);
+                resetHistory(mergeStateWithNewImage(state, null));
                 setShowConfirmDialog(false);
               }}
             >

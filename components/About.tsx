@@ -16,21 +16,26 @@ export default function About() {
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          className="text-muted-foreground hover:text-foreground hover:bg-accent px-2"
+          className="text-muted-foreground hover:text-foreground hover:bg-accent px-1 sm:px-2"
           title="About"
         >
           <Info className="w-4 h-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
+      <DialogContent className="w-[calc(100%-2rem)] sm:max-w-md rounded-2xl">
+        <DialogHeader className="text-left">
           <DialogTitle>
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <img src="/favicon.ico" alt="Screen Pastel" className="w-5 h-5" />
-              Screen Pastel
+              <div className="text-[10px] font-bold leading-none flex flex-col uppercase tracking-wider text-left">
+                <span>Screen</span>
+                <span className="text-primary">Pastel</span>
+              </div>
             </div>
           </DialogTitle>
-          <DialogDescription>Create beautiful screenshots</DialogDescription>
+          <DialogDescription className="text-left">
+            Create beautiful screenshots
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 pt-1">
