@@ -171,3 +171,36 @@
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
   background-color: var(--foreground);
 }
+
+@media (max-width: 767px) {
+  body.slider-dragging .mobile-controls-container {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  body.slider-dragging .mobile-tabs-container,
+  body.slider-dragging .mobile-drag-handle {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  body.slider-dragging .mobile-controls-content *:not(:has(.slider-active)):not(.slider-active):not(:is(.slider-active *)) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  body.slider-dragging .mobile-controls-content *:has(.slider-active) {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .mobile-controls-container,
+  .mobile-tabs-container,
+  .mobile-drag-handle,
+  .mobile-controls-content * {
+    transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, backdrop-filter 0.2s ease;
+  }
+}

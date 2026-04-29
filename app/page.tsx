@@ -2,7 +2,7 @@
 
 import {
   AlertTriangle,
-  Box,
+  Layers,
   Check,
   Copy,
   Download,
@@ -506,7 +506,7 @@ export default function ScreenshotEditor() {
   const tabs = [
     { id: "background" as TabType, label: "Background", icon: Palette },
     { id: "styling" as TabType, label: "Transform", icon: Maximize },
-    { id: "shadow" as TabType, label: "Shadow", icon: Box },
+    { id: "shadow" as TabType, label: "Shadow", icon: Layers },
     { id: "border" as TabType, label: "Border", icon: Frame },
     { id: "window" as TabType, label: "Window", icon: PanelTop },
   ];
@@ -902,7 +902,7 @@ export default function ScreenshotEditor() {
             </nav>
 
             {activeTab && (
-              <div className="w-[300px] overflow-y-auto sidebar-scroll select-none">
+              <div key={activeTab} className="w-[300px] overflow-y-auto sidebar-scroll select-none">
                 <div className="p-4">
                   <h2 className="text-base font-semibold text-foreground mb-4">
                     {tabs.find((t) => t.id === activeTab)?.label}
@@ -1000,14 +1000,21 @@ export default function ScreenshotEditor() {
         </main>
       </div>
 
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-20 border-t border-border/30 bg-background/20 backdrop-blur-xl shadow-2xl shadow-black/20">
-        {activeTab && (
-          <div className="px-4 py-3 max-h-[50vh] overflow-y-auto sidebar-scroll select-none">
-            {renderTabContent()}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-20 border-t border-border/30 bg-background/20 backdrop-blur-xl shadow-2xl shadow-black/20 mobile-controls-container rounded-t-xl transition-all duration-300">
+        <div 
+          className="w-full flex justify-center py-2 cursor-pointer touch-none mobile-drag-handle"
+          onClick={() => setActiveTab(activeTab ? null : "background")}
+        >
+          <div className={`h-1.5 rounded-full bg-muted-foreground/30 transition-all duration-300 ${activeTab ? "w-12 bg-muted-foreground/50" : "w-8"}`} />
+        </div>
+        
+        <div className={`transition-all duration-300 ease-in-out overflow-hidden ${activeTab ? "max-h-[60vh] opacity-100" : "max-h-0 opacity-0"}`}>
+          <div key={activeTab} className="px-4 pb-3 max-h-[50vh] overflow-y-auto sidebar-scroll select-none mobile-controls-content">
+            {activeTab && renderTabContent()}
           </div>
-        )}
+        </div>
         <div
-          className={`flex items-center justify-around gap-0 px-1 py-2 ${activeTab ? "border-t border-border" : ""}`}
+          className={`flex items-center justify-around gap-0 px-1 py-2 mobile-tabs-container transition-colors ${activeTab ? "border-t border-border/50" : ""}`}
         >
           {tabs.map((tab) => renderTabButton(tab, "bottom"))}
         </div>

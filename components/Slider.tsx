@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Slider as UI_Slider } from "@/components/ui/slider";
 
@@ -40,6 +40,22 @@ const Slider = ({
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState(String(value));
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    if (isDragging) {
+      const handlePointerUp = () => {
+        setIsDragging(false);
+        document.body.classList.remove("slider-dragging");
+      };
+      document.addEventListener("pointerup", handlePointerUp);
+      document.addEventListener("pointercancel", handlePointerUp);
+      return () => {
+        document.removeEventListener("pointerup", handlePointerUp);
+        document.removeEventListener("pointercancel", handlePointerUp);
+      };
+    }
+  }, [isDragging]);
 
   const displayValue = isFocused ? inputValue : String(value);
 
@@ -61,7 +77,7 @@ const Slider = ({
   };
 
   return (
-    <div className="space-y-2">
+    <div className={`space-y-2 slider-container ${isDragging ? "slider-active" : ""}`}>
       <div className="flex justify-between items-center text-xs">
         <Label className="text-muted-foreground">{label}</Label>
         <div className="flex items-center gap-0 bg-secondary/50 border border-border/50 rounded-md overflow-hidden focus-within:border-primary/50 transition-colors">
@@ -114,6 +130,10 @@ const Slider = ({
         max={max}
         step={step}
         className="w-full"
+        onPointerDown={() => {
+          setIsDragging(true);
+          document.body.classList.add("slider-dragging");
+        }}
       />
     </div>
   );

@@ -125,25 +125,36 @@ export default function BackgroundControls({
 
   return (
     <div className="space-y-6">
-      <button
-        onClick={() => imageInputRef.current?.click()}
-        className={`relative flex flex-col items-center justify-center gap-2 rounded-md transition-all group w-full ${isSelected("custom-image")
-          ? "bg-white shadow-md p-1"
-          : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
+      <div className="space-y-3">
+        <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">
+          Background Image
+        </h3>
+        <button
+          onClick={() => imageInputRef.current?.click()}
+          className={`relative flex items-center gap-3 p-2 rounded-lg border transition-all group w-full ${
+            isSelected("custom-image")
+              ? "bg-white border-primary/50 shadow-sm"
+              : "bg-white/40 border-border/50 hover:bg-white/60 hover:border-border"
           }`}
-      >
-        <div className="w-full h-14 md:h-[72px] rounded flex flex-col items-center justify-center gap-1 md:gap-2 bg-accent/30">
-          <Upload className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-          <span className="text-[10px] md:text-xs text-muted-foreground group-hover:text-foreground transition-colors flex items-center leading-none">
-            Image
-          </span>
-        </div>
-        {isSelected("custom-image") && (
-          <div className="absolute top-2.5 right-2.5">
-            <Check className="w-3 h-3 text-primary" />
+        >
+          <div className="w-10 h-10 rounded bg-accent/40 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/60 transition-colors">
+            <Upload className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />
           </div>
-        )}
-      </button>
+          <div className="flex-1 text-left min-w-0">
+            <div className="text-xs font-semibold text-foreground truncate">
+              {isSelected("custom-image") ? "Custom Image" : "Upload Image"}
+            </div>
+            <div className="text-[10px] text-muted-foreground truncate">
+              JPG, PNG or SVG
+            </div>
+          </div>
+          {isSelected("custom-image") && (
+            <div className="flex-shrink-0 mr-1">
+              <Check className="w-3.5 h-3.5 text-primary" />
+            </div>
+          )}
+        </button>
+      </div>
 
       <input
         ref={imageInputRef}

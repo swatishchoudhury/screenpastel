@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
@@ -63,6 +64,9 @@ export default function CreateThemePopover({
       <DialogContent className="sm:max-w-[420px]">
         <DialogHeader>
           <DialogTitle>Create Custom Theme</DialogTitle>
+          <DialogDescription>
+            Create and save your custom gradient theme.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 py-2">
