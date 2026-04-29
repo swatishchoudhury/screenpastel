@@ -160,6 +160,34 @@ export default function ScreenshotEditor() {
     resetHistory,
   } = useHistory(INITIAL_STATE);
 
+  useEffect(() => {
+    if (!state.aspectRatio || state.aspectRatio === "auto") {
+      setCanvasZoom(1);
+      return;
+    }
+
+    const match = state.aspectRatio.match(/(\d+):(\d+)/);
+    if (!match) return;
+    
+    const [_, wStr, hStr] = match;
+    const wRatio = parseFloat(wStr);
+    const hRatio = parseFloat(hStr);
+    
+    const baseWidth = 800;
+    const baseHeight = baseWidth * (hRatio / wRatio);
+    
+    const isMobile = window.innerWidth < 768;
+    const availableWidth = isMobile ? window.innerWidth - 32 : window.innerWidth - 372;
+    const availableHeight = window.innerHeight - 120;
+    
+    const zoomX = availableWidth / baseWidth;
+    const zoomY = availableHeight / baseHeight;
+    
+    const targetZoom = Math.min(zoomX, zoomY, 1) * (isMobile ? 0.9 : 0.95);
+    
+    setCanvasZoom(Math.round(targetZoom * 100) / 100);
+  }, [state.aspectRatio]);
+
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
   const dragInitialState = useRef<EditorState | null>(null);
@@ -581,7 +609,7 @@ export default function ScreenshotEditor() {
       ) : (
         <div
           ref={ref}
-          className={`relative overflow-hidden flex items-center justify-center select-none ${state.aspectRatio === "auto" ? "" : "w-[800px] max-w-full"}`}
+          className={`relative overflow-hidden flex items-center justify-center select-none ${state.aspectRatio === "auto" ? "" : "w-[800px]"}`}
           style={{
             padding: `${state.padding}px`,
             aspectRatio:
@@ -971,7 +999,7 @@ export default function ScreenshotEditor() {
           <div
             className="origin-center"
             style={{
-              transform: state.image ? `scale(${canvasZoom * 0.75})` : "none",
+              transform: state.image ? `scale(${state.aspectRatio === "auto" ? canvasZoom * 0.75 : canvasZoom})` : "none",
             }}
           >
             {renderCanvas(mobileCanvasRef)}
