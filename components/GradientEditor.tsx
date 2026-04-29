@@ -1,12 +1,11 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
 import { Minus, Plus } from "lucide-react";
 import { nanoid } from "nanoid";
+import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import type { GradientConfig, GradientStop } from "@/lib/types";
-import { buildGradient } from "@/lib/gradientUtils";
 import Slider from "./Slider";
 
 interface GradientEditorProps {
@@ -18,9 +17,18 @@ interface GradientEditorProps {
 function lerpColor(c1: string, c2: string, t: number): string {
   const h1 = c1.replace("#", "");
   const h2 = c2.replace("#", "");
-  const r = Math.round(parseInt(h1.substring(0, 2), 16) * (1 - t) + parseInt(h2.substring(0, 2), 16) * t);
-  const g = Math.round(parseInt(h1.substring(2, 4), 16) * (1 - t) + parseInt(h2.substring(2, 4), 16) * t);
-  const b = Math.round(parseInt(h1.substring(4, 6), 16) * (1 - t) + parseInt(h2.substring(4, 6), 16) * t);
+  const r = Math.round(
+    parseInt(h1.substring(0, 2), 16) * (1 - t) +
+      parseInt(h2.substring(0, 2), 16) * t,
+  );
+  const g = Math.round(
+    parseInt(h1.substring(2, 4), 16) * (1 - t) +
+      parseInt(h2.substring(2, 4), 16) * t,
+  );
+  const b = Math.round(
+    parseInt(h1.substring(4, 6), 16) * (1 - t) +
+      parseInt(h2.substring(4, 6), 16) * t,
+  );
   return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
 }
 
@@ -33,9 +41,15 @@ function hexToRgba(hex: string, opacity: number): string {
   return `rgba(${r},${g},${b},${(opacity / 100).toFixed(2)})`;
 }
 
-export default function GradientEditor({ config, onChange, onCommit }: GradientEditorProps) {
+export default function GradientEditor({
+  config,
+  onChange,
+  onCommit,
+}: GradientEditorProps) {
   const barRef = useRef<HTMLDivElement>(null);
-  const [selectedStopId, setSelectedStopId] = useState<string | null>(config.stops[0]?.id ?? null);
+  const [selectedStopId, setSelectedStopId] = useState<string | null>(
+    config.stops[0]?.id ?? null,
+  );
   const [draggingStopId, setDraggingStopId] = useState<string | null>(null);
   const commitRef = useRef<GradientConfig | null>(null);
 
@@ -43,7 +57,9 @@ export default function GradientEditor({ config, onChange, onCommit }: GradientE
 
   const barGradient = (() => {
     const sorted = [...config.stops].sort((a, b) => a.position - b.position);
-    const stops = sorted.map((s) => `${hexToRgba(s.color, s.opacity)} ${s.position}%`).join(", ");
+    const stops = sorted
+      .map((s) => `${hexToRgba(s.color, s.opacity)} ${s.position}%`)
+      .join(", ");
     return `linear-gradient(90deg, ${stops})`;
   })();
 
@@ -162,7 +178,12 @@ export default function GradientEditor({ config, onChange, onCommit }: GradientE
       const color = lerpColor(left.color, right.color, t);
       const opacity = Math.round(left.opacity * (1 - t) + right.opacity * t);
 
-      const newStop: GradientStop = { id: nanoid(), position: pos, color, opacity };
+      const newStop: GradientStop = {
+        id: nanoid(),
+        position: pos,
+        color,
+        opacity,
+      };
       const newConfig = { ...config, stops: [...config.stops, newStop] };
       setSelectedStopId(newStop.id);
       onChange(newConfig);
@@ -195,10 +216,11 @@ export default function GradientEditor({ config, onChange, onCommit }: GradientE
           {sortedStops.map((stop) => (
             <div
               key={stop.id}
-              className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-sm border-2 cursor-grab active:cursor-grabbing transition-shadow ${selectedStopId === stop.id
-                ? "border-white shadow-[0_0_0_1.5px_rgba(0,0,0,0.6)] z-20 scale-110"
-                : "border-white/90 shadow-[0_0_0_1px_rgba(0,0,0,0.3)] z-10"
-                }`}
+              className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-sm border-2 cursor-grab active:cursor-grabbing transition-shadow ${
+                selectedStopId === stop.id
+                  ? "border-white shadow-[0_0_0_1.5px_rgba(0,0,0,0.6)] z-20 scale-110"
+                  : "border-white/90 shadow-[0_0_0_1px_rgba(0,0,0,0.3)] z-10"
+              }`}
               style={{
                 left: `${stop.position}%`,
                 backgroundColor: stop.color,
@@ -241,10 +263,11 @@ export default function GradientEditor({ config, onChange, onCommit }: GradientE
           {sortedStops.map((stop) => (
             <div
               key={stop.id}
-              className={`flex items-center gap-1.5 rounded-md px-2 py-1.5 transition-colors cursor-pointer ${selectedStopId === stop.id
-                ? "bg-accent/60 ring-1 ring-primary/20"
-                : "hover:bg-accent/30"
-                }`}
+              className={`flex items-center gap-1.5 rounded-md px-2 py-1.5 transition-colors cursor-pointer ${
+                selectedStopId === stop.id
+                  ? "bg-accent/60 ring-1 ring-primary/20"
+                  : "hover:bg-accent/30"
+              }`}
               onClick={() => setSelectedStopId(stop.id)}
             >
               <div className="flex items-center gap-0 bg-secondary/50 border border-border/50 rounded overflow-hidden w-[42px] flex-shrink-0">
@@ -260,7 +283,9 @@ export default function GradientEditor({ config, onChange, onCommit }: GradientE
                   className="w-6 bg-transparent text-[11px] font-mono text-right py-0.5 outline-none text-foreground"
                   onClick={(e) => e.stopPropagation()}
                 />
-                <span className="text-[10px] text-muted-foreground pr-1 select-none font-mono">%</span>
+                <span className="text-[10px] text-muted-foreground pr-1 select-none font-mono">
+                  %
+                </span>
               </div>
 
               <div className="flex items-center gap-0 bg-secondary/50 border border-border/50 rounded overflow-hidden flex-1 min-w-0 h-7">
@@ -272,7 +297,9 @@ export default function GradientEditor({ config, onChange, onCommit }: GradientE
                   <input
                     type="color"
                     value={stop.color}
-                    onChange={(e) => updateStop(stop.id, { color: e.target.value })}
+                    onChange={(e) =>
+                      updateStop(stop.id, { color: e.target.value })
+                    }
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     tabIndex={-1}
                     onClick={(e) => e.stopPropagation()}
@@ -280,12 +307,16 @@ export default function GradientEditor({ config, onChange, onCommit }: GradientE
                 </div>
 
                 <div className="flex items-center flex-1 min-w-0 ml-1">
-                  <span className="text-[10px] text-muted-foreground font-mono">#</span>
+                  <span className="text-[10px] text-muted-foreground font-mono">
+                    #
+                  </span>
                   <input
                     type="text"
                     value={stop.color.toUpperCase().replace("#", "")}
                     onChange={(e) => {
-                      const raw = e.target.value.replace(/[^0-9A-Fa-f]/g, "").slice(0, 6);
+                      const raw = e.target.value
+                        .replace(/[^0-9A-Fa-f]/g, "")
+                        .slice(0, 6);
                       if (raw.length === 6) {
                         updateStop(stop.id, { color: `#${raw.toLowerCase()}` });
                       }
@@ -311,7 +342,9 @@ export default function GradientEditor({ config, onChange, onCommit }: GradientE
                     className="w-6 bg-transparent text-[11px] font-mono text-right py-0.5 outline-none text-foreground"
                     onClick={(e) => e.stopPropagation()}
                   />
-                  <span className="text-[10px] text-muted-foreground pr-1 select-none font-mono">%</span>
+                  <span className="text-[10px] text-muted-foreground pr-1 select-none font-mono">
+                    %
+                  </span>
                 </div>
               </div>
 

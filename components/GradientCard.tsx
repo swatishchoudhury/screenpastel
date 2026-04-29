@@ -23,10 +23,11 @@ export default function GradientCard({
         className="w-full flex flex-col items-center gap-1 md:gap-1.5 group"
       >
         <div
-          className={`w-full rounded-md transition-all ${isSelected
-            ? "bg-white shadow-md p-1"
-            : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
-            }`}
+          className={`w-full rounded-md transition-all ${
+            isSelected
+              ? "bg-white shadow-md p-1"
+              : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
+          }`}
         >
           <div
             className="w-full aspect-[5/3] md:aspect-[4/3] rounded relative overflow-hidden transition-all"

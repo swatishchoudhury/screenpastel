@@ -1,5 +1,5 @@
-import type { GradientConfig, GradientStop } from "./types";
 import { nanoid } from "nanoid";
+import type { GradientConfig, GradientStop } from "./types";
 
 // Convert hex + opacity (0-100) to an rgba string
 function hexToRgba(hex: string, opacity: number): string {
@@ -53,18 +53,26 @@ export function parseGradient(value: string): GradientConfig {
       // Match: color then position%
       // Color can be hex (#xxx or #xxxxxx) or rgba(...)
       const percentMatch = part.match(/(\d+)%\s*$/);
-      const position = percentMatch ? parseInt(percentMatch[1], 10) : (i === 1 ? 0 : 100);
+      const position = percentMatch
+        ? parseInt(percentMatch[1], 10)
+        : i === 1
+          ? 0
+          : 100;
       const colorStr = part.replace(/\d+%\s*$/, "").trim();
 
       // Parse rgba if present
-      const rgbaMatch = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+      const rgbaMatch = colorStr.match(
+        /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/,
+      );
       let color: string;
       let opacity: number;
       if (rgbaMatch) {
         const r = parseInt(rgbaMatch[1], 10);
         const g = parseInt(rgbaMatch[2], 10);
         const b = parseInt(rgbaMatch[3], 10);
-        opacity = rgbaMatch[4] ? Math.round(parseFloat(rgbaMatch[4]) * 100) : 100;
+        opacity = rgbaMatch[4]
+          ? Math.round(parseFloat(rgbaMatch[4]) * 100)
+          : 100;
         color = `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
       } else {
         color = colorStr;
@@ -92,6 +100,9 @@ export function buildGradient(config: GradientConfig): string {
 }
 
 // Build gradient from a Theme object
-export function buildGradientFromTheme(theme: { direction: number; stops: GradientStop[] }): string {
+export function buildGradientFromTheme(theme: {
+  direction: number;
+  stops: GradientStop[];
+}): string {
   return buildGradient({ direction: theme.direction, stops: theme.stops });
 }

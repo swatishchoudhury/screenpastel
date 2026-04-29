@@ -186,7 +186,9 @@
     pointer-events: none !important;
   }
 
-  body.slider-dragging .mobile-controls-content *:not(:has(.slider-active)):not(.slider-active):not(:is(.slider-active *)) {
+  body.slider-dragging
+    .mobile-controls-content
+    *:not(:has(.slider-active)):not(.slider-active):not(:is(.slider-active *)) {
     opacity: 0 !important;
     pointer-events: none !important;
   }
@@ -201,6 +203,11 @@
   .mobile-tabs-container,
   .mobile-drag-handle,
   .mobile-controls-content * {
-    transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, backdrop-filter 0.2s ease;
+    transition:
+      opacity 0.2s ease,
+      background 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      backdrop-filter 0.2s ease;
   }
 }

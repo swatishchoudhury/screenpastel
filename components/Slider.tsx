@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Slider as UI_Slider } from "@/components/ui/slider";
 
@@ -77,7 +77,9 @@ const Slider = ({
   };
 
   return (
-    <div className={`space-y-2 slider-container ${isDragging ? "slider-active" : ""}`}>
+    <div
+      className={`space-y-2 slider-container ${isDragging ? "slider-active" : ""}`}
+    >
       <div className="flex justify-between items-center text-xs">
         <Label className="text-muted-foreground">{label}</Label>
         <div className="flex items-center gap-0 bg-secondary/50 border border-border/50 rounded-md overflow-hidden focus-within:border-primary/50 transition-colors">

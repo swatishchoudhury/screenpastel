@@ -2,15 +2,7 @@
 import { Check, Pencil, Upload } from "lucide-react";
 import type React from "react";
 import { useRef, useState } from "react";
-import { BACKGROUNDS } from "../lib/data";
-import type { Background, EditorState } from "../lib/types";
-import ColorSwatch from "./ColorSwatch";
-import Slider from "./Slider";
-import GradientEditor from "./GradientEditor";
-import { useSavedThemes } from "@/hooks/useSavedThemes";
-import GradientCard from "./GradientCard";
-import CreateThemePopover from "./CreateThemePopover";
-import { parseGradient, buildGradient } from "@/lib/gradientUtils";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +11,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { useSavedThemes } from "@/hooks/useSavedThemes";
+import { buildGradient, parseGradient } from "@/lib/gradientUtils";
+import { BACKGROUNDS } from "../lib/data";
+import type { Background, EditorState } from "../lib/types";
+import ColorSwatch from "./ColorSwatch";
+import CreateThemePopover from "./CreateThemePopover";
+import GradientCard from "./GradientCard";
+import GradientEditor from "./GradientEditor";
+import Slider from "./Slider";
 
 export default function BackgroundControls({
   state,
@@ -179,14 +179,20 @@ export default function BackgroundControls({
           {themes.length > 0 && (
             <div className="relative">
               <div
-                className={`overflow-hidden transition-all duration-300 ${!showAllSaved && themes.length > VISIBLE_COUNT ? "max-h-[160px] md:max-h-[200px]" : ""
-                  }`}
+                className={`overflow-hidden transition-all duration-300 ${
+                  !showAllSaved && themes.length > VISIBLE_COUNT
+                    ? "max-h-[160px] md:max-h-[200px]"
+                    : ""
+                }`}
               >
                 <div className="grid grid-cols-5 md:grid-cols-3 gap-2 md:gap-3 mt-2">
                   {themes.map((theme) => (
                     <GradientCard
                       key={theme.id}
-                      gradient={buildGradient({ direction: theme.direction, stops: theme.stops })}
+                      gradient={buildGradient({
+                        direction: theme.direction,
+                        stops: theme.stops,
+                      })}
                       label={theme.name}
                       isSelected={isSelected(theme.id)}
                       onSelect={() => applySavedTheme(theme)}
@@ -199,7 +205,9 @@ export default function BackgroundControls({
                 <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none" />
               )}
               {themes.length > VISIBLE_COUNT && (
-                <div className={`flex justify-center ${showAllSaved ? "mt-2" : "-mt-4 relative z-10"}`}>
+                <div
+                  className={`flex justify-center ${showAllSaved ? "mt-2" : "-mt-4 relative z-10"}`}
+                >
                   <button
                     onClick={() => setShowAllSaved(!showAllSaved)}
                     className="text-[11px] font-medium text-muted-foreground hover:text-foreground bg-secondary/80 hover:bg-secondary border border-border/60 px-3 py-1 rounded-full transition-all shadow-sm backdrop-blur-sm"
@@ -218,8 +226,11 @@ export default function BackgroundControls({
           </h3>
           <div className="relative">
             <div
-              className={`overflow-hidden transition-all duration-300 ${!showAllPresets && presetGradients.length > VISIBLE_COUNT ? "max-h-[160px] md:max-h-[200px]" : ""
-                }`}
+              className={`overflow-hidden transition-all duration-300 ${
+                !showAllPresets && presetGradients.length > VISIBLE_COUNT
+                  ? "max-h-[160px] md:max-h-[200px]"
+                  : ""
+              }`}
             >
               <div className="grid grid-cols-5 md:grid-cols-3 gap-2 md:gap-3 mt-2">
                 {presetGradients.map((bg) => (
@@ -237,12 +248,16 @@ export default function BackgroundControls({
               <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none" />
             )}
             {presetGradients.length > VISIBLE_COUNT && (
-              <div className={`flex justify-center ${showAllPresets ? "mt-2" : "-mt-4 relative z-10"}`}>
+              <div
+                className={`flex justify-center ${showAllPresets ? "mt-2" : "-mt-4 relative z-10"}`}
+              >
                 <button
                   onClick={() => setShowAllPresets(!showAllPresets)}
                   className="text-[11px] font-medium text-muted-foreground hover:text-foreground bg-secondary/80 hover:bg-secondary border border-border/60 px-3 py-1 rounded-full transition-all shadow-sm backdrop-blur-sm"
                 >
-                  {showAllPresets ? "Show less" : `Show all (${presetGradients.length})`}
+                  {showAllPresets
+                    ? "Show less"
+                    : `Show all (${presetGradients.length})`}
                 </button>
               </div>
             )}
@@ -273,10 +288,11 @@ export default function BackgroundControls({
             className="flex flex-col items-center gap-1 md:gap-1.5 group"
           >
             <div
-              className={`w-full rounded-md transition-all ${isSelected("custom-solid")
-                ? "bg-white shadow-md p-1"
-                : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
-                }`}
+              className={`w-full rounded-md transition-all ${
+                isSelected("custom-solid")
+                  ? "bg-white shadow-md p-1"
+                  : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
+              }`}
             >
               <div
                 className="w-full aspect-[5/3] md:aspect-[4/3] rounded relative overflow-hidden flex items-center justify-center"
@@ -306,10 +322,11 @@ export default function BackgroundControls({
               className="flex flex-col items-center gap-1 md:gap-1.5 group"
             >
               <div
-                className={`w-full rounded-md transition-all ${isSelected(bg.id)
-                  ? "bg-white shadow-md p-1"
-                  : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
-                  }`}
+                className={`w-full rounded-md transition-all ${
+                  isSelected(bg.id)
+                    ? "bg-white shadow-md p-1"
+                    : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
+                }`}
               >
                 <div
                   className="w-full aspect-[5/3] md:aspect-[4/3] rounded relative overflow-hidden"

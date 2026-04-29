@@ -1,21 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogTrigger,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import GradientEditor from "./GradientEditor";
-import type { GradientConfig, Theme } from "@/lib/types";
 import { buildGradient } from "@/lib/gradientUtils";
+import type { GradientConfig, Theme } from "@/lib/types";
+import GradientEditor from "./GradientEditor";
 
 interface CreateThemePopoverProps {
   currentGradient: GradientConfig;
@@ -57,7 +57,11 @@ export default function CreateThemePopover({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1 bg-white/50 hover:bg-white/80">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 text-xs px-2 gap-1 bg-white/50 hover:bg-white/80"
+        >
           <Plus className="w-3.5 h-3.5" /> Create
         </Button>
       </DialogTrigger>
@@ -102,7 +106,9 @@ export default function CreateThemePopover({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
           <Button onClick={handleSave}>Save Theme</Button>
         </DialogFooter>
       </DialogContent>

@@ -2,11 +2,11 @@
 
 import {
   AlertTriangle,
-  Layers,
   Check,
   Copy,
   Download,
   Frame,
+  Layers,
   Loader2,
   Maximize,
   Minus,
@@ -168,23 +168,25 @@ export default function ScreenshotEditor() {
 
     const match = state.aspectRatio.match(/(\d+):(\d+)/);
     if (!match) return;
-    
+
     const [_, wStr, hStr] = match;
     const wRatio = parseFloat(wStr);
     const hRatio = parseFloat(hStr);
-    
+
     const baseWidth = 800;
     const baseHeight = baseWidth * (hRatio / wRatio);
-    
+
     const isMobile = window.innerWidth < 768;
-    const availableWidth = isMobile ? window.innerWidth - 32 : window.innerWidth - 372;
+    const availableWidth = isMobile
+      ? window.innerWidth - 32
+      : window.innerWidth - 372;
     const availableHeight = window.innerHeight - 120;
-    
+
     const zoomX = availableWidth / baseWidth;
     const zoomY = availableHeight / baseHeight;
-    
+
     const targetZoom = Math.min(zoomX, zoomY, 1) * (isMobile ? 0.9 : 0.95);
-    
+
     setCanvasZoom(Math.round(targetZoom * 100) / 100);
   }, [state.aspectRatio]);
 
@@ -361,9 +363,7 @@ export default function ScreenshotEditor() {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        resetHistory(
-          mergeStateWithNewImage(state, e.target?.result as string),
-        );
+        resetHistory(mergeStateWithNewImage(state, e.target?.result as string));
       };
       reader.readAsDataURL(file);
     }
@@ -586,10 +586,11 @@ export default function ScreenshotEditor() {
     <>
       {!state.image ? (
         <div
-          className={`text-center text-muted-foreground cursor-pointer rounded-xl p-8 transition-all duration-200 ${isDraggingFile
-            ? "bg-primary/5 border-2 border-dashed border-primary scale-105"
-            : "hover:bg-accent/20"
-            }`}
+          className={`text-center text-muted-foreground cursor-pointer rounded-xl p-8 transition-all duration-200 ${
+            isDraggingFile
+              ? "bg-primary/5 border-2 border-dashed border-primary scale-105"
+              : "hover:bg-accent/20"
+          }`}
           onClick={() => fileInputRef.current?.click()}
         >
           <Upload
@@ -803,10 +804,11 @@ export default function ScreenshotEditor() {
         <button
           key={tab.id}
           onClick={() => handleTabClick(tab.id)}
-          className={`flex flex-col items-center gap-1.5 px-2 py-3.5 rounded-xl transition-all w-full ${isActive
-            ? "bg-accent text-accent-foreground"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-            }`}
+          className={`flex flex-col items-center gap-1.5 px-2 py-3.5 rounded-xl transition-all w-full ${
+            isActive
+              ? "bg-accent text-accent-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+          }`}
           title={tab.label}
         >
           <Icon className="w-5 h-5" />
@@ -821,10 +823,11 @@ export default function ScreenshotEditor() {
       <button
         key={tab.id}
         onClick={() => handleTabClick(tab.id)}
-        className={`flex flex-col items-center gap-1.5 px-2 py-2.5 rounded-lg transition-all ${isActive
-          ? "bg-accent text-accent-foreground"
-          : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-          }`}
+        className={`flex flex-col items-center gap-1.5 px-2 py-2.5 rounded-lg transition-all ${
+          isActive
+            ? "bg-accent text-accent-foreground"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+        }`}
       >
         <Icon className="w-4 h-4" />
         <span className="text-xs font-medium">{tab.label}</span>
@@ -930,7 +933,10 @@ export default function ScreenshotEditor() {
             </nav>
 
             {activeTab && (
-              <div key={activeTab} className="w-[300px] overflow-y-auto sidebar-scroll select-none">
+              <div
+                key={activeTab}
+                className="w-[300px] overflow-y-auto sidebar-scroll select-none"
+              >
                 <div className="p-4">
                   <h2 className="text-base font-semibold text-foreground mb-4">
                     {tabs.find((t) => t.id === activeTab)?.label}
@@ -999,7 +1005,9 @@ export default function ScreenshotEditor() {
           <div
             className="origin-center"
             style={{
-              transform: state.image ? `scale(${state.aspectRatio === "auto" ? canvasZoom * 0.75 : canvasZoom})` : "none",
+              transform: state.image
+                ? `scale(${state.aspectRatio === "auto" ? canvasZoom * 0.75 : canvasZoom})`
+                : "none",
             }}
           >
             {renderCanvas(mobileCanvasRef)}
@@ -1029,15 +1037,22 @@ export default function ScreenshotEditor() {
       </div>
 
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-20 border-t border-border/30 bg-background/20 backdrop-blur-xl shadow-2xl shadow-black/20 mobile-controls-container rounded-t-xl transition-all duration-300">
-        <div 
+        <div
           className="w-full flex justify-center py-2 cursor-pointer touch-none mobile-drag-handle"
           onClick={() => setActiveTab(activeTab ? null : "background")}
         >
-          <div className={`h-1.5 rounded-full bg-muted-foreground/30 transition-all duration-300 ${activeTab ? "w-12 bg-muted-foreground/50" : "w-8"}`} />
+          <div
+            className={`h-1.5 rounded-full bg-muted-foreground/30 transition-all duration-300 ${activeTab ? "w-12 bg-muted-foreground/50" : "w-8"}`}
+          />
         </div>
-        
-        <div className={`transition-all duration-300 ease-in-out overflow-hidden ${activeTab ? "max-h-[60vh] opacity-100" : "max-h-0 opacity-0"}`}>
-          <div key={activeTab} className="px-4 pb-3 max-h-[50vh] overflow-y-auto sidebar-scroll select-none mobile-controls-content">
+
+        <div
+          className={`transition-all duration-300 ease-in-out overflow-hidden ${activeTab ? "max-h-[60vh] opacity-100" : "max-h-0 opacity-0"}`}
+        >
+          <div
+            key={activeTab}
+            className="px-4 pb-3 max-h-[50vh] overflow-y-auto sidebar-scroll select-none mobile-controls-content"
+          >
             {activeTab && renderTabContent()}
           </div>
         </div>

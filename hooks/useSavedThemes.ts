@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from "react";
 import { nanoid } from "nanoid";
-import type { Theme, GradientStop } from "@/lib/types";
+import { useCallback, useEffect, useState } from "react";
+import type { GradientStop, Theme } from "@/lib/types";
 
 const STORAGE_KEY = "savedThemes";
 const OLD_STORAGE_KEY = "customThemes";
@@ -8,7 +8,12 @@ const OLD_STORAGE_KEY = "customThemes";
 function migrateOldTheme(old: any): Theme {
   const stops: GradientStop[] = [
     { id: nanoid(), position: 0, color: old.color1 || "#ffffff", opacity: 100 },
-    { id: nanoid(), position: 100, color: old.color2 || "#000000", opacity: 100 },
+    {
+      id: nanoid(),
+      position: 100,
+      color: old.color2 || "#000000",
+      opacity: 100,
+    },
   ];
 
   return {
@@ -29,7 +34,9 @@ function loadFromStorage(): Theme[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        return parsed.map((t: any) => (isNewFormat(t) ? t : migrateOldTheme(t)));
+        return parsed.map((t: any) =>
+          isNewFormat(t) ? t : migrateOldTheme(t),
+        );
       }
     }
 

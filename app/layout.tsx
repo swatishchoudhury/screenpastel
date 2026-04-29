@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Funnel_Sans } from "next/font/google";
+import { Funnel_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistMono = Geist_Mono({
@@ -38,10 +38,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistMono.variable} ${funnelSans.variable} antialiased`}>
-      <body>
-        {children}
-      </body>
+    <html
+      lang="en"
+      className={`${geistMono.variable} ${funnelSans.variable} antialiased`}
+    >
+      <body>{children}</body>
     </html>
   );
 }
