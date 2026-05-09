@@ -99,10 +99,3 @@ export function buildGradient(config: GradientConfig): string {
   return `linear-gradient(${direction}deg, ${colorStops})`;
 }
 
-// Build gradient from a Theme object
-export function buildGradientFromTheme(theme: {
-  direction: number;
-  stops: GradientStop[];
-}): string {
-  return buildGradient({ direction: theme.direction, stops: theme.stops });
-}

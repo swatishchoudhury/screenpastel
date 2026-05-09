@@ -125,11 +125,13 @@ const mergeStateWithNewImage = (
 };
 
 export default function ScreenshotEditor() {
-  const [activeTab, setActiveTab] = useState<TabType | null>(null);
+  const [activeTab, setActiveTab] = useState<TabType | null>("background");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (window.innerWidth >= 768) {
-      setActiveTab("background");
+    setMounted(true);
+    if (window.innerWidth < 768) {
+      setActiveTab(null);
     }
   }, []);
 
@@ -357,6 +359,14 @@ export default function ScreenshotEditor() {
   const desktopCanvasRef = useRef<HTMLDivElement>(null);
   const mobileCanvasRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const panelDragState = useRef<{
+    startY: number;
+    startOpen: boolean;
+    velocity: number;
+    lastY: number;
+    lastTime: number;
+  } | null>(null);
+  const [panelDragOffset, setPanelDragOffset] = useState(0);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -586,11 +596,10 @@ export default function ScreenshotEditor() {
     <>
       {!state.image ? (
         <div
-          className={`text-center text-muted-foreground cursor-pointer rounded-xl p-8 transition-all duration-200 ${
-            isDraggingFile
-              ? "bg-primary/5 border-2 border-dashed border-primary scale-105"
-              : "hover:bg-accent/20"
-          }`}
+          className={`text-center text-muted-foreground cursor-pointer rounded-xl p-8 transition-all duration-200 ${isDraggingFile
+            ? "bg-primary/5 border-2 border-dashed border-primary scale-105"
+            : "hover:bg-accent/20"
+            }`}
           onClick={() => fileInputRef.current?.click()}
         >
           <Upload
@@ -804,11 +813,10 @@ export default function ScreenshotEditor() {
         <button
           key={tab.id}
           onClick={() => handleTabClick(tab.id)}
-          className={`flex flex-col items-center gap-1.5 px-2 py-3.5 rounded-xl transition-all w-full ${
-            isActive
-              ? "bg-accent text-accent-foreground"
-              : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-          }`}
+          className={`flex flex-col items-center gap-1.5 px-2 py-3.5 rounded-xl transition-all w-full ${isActive
+            ? "bg-accent text-accent-foreground"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+            }`}
           title={tab.label}
         >
           <Icon className="w-5 h-5" />
@@ -823,11 +831,10 @@ export default function ScreenshotEditor() {
       <button
         key={tab.id}
         onClick={() => handleTabClick(tab.id)}
-        className={`flex flex-col items-center gap-1.5 px-2 py-2.5 rounded-lg transition-all ${
-          isActive
-            ? "bg-accent text-accent-foreground"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-        }`}
+        className={`flex flex-col items-center gap-1.5 px-2 py-2.5 rounded-lg transition-all ${isActive
+          ? "bg-accent text-accent-foreground"
+          : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+          }`}
       >
         <Icon className="w-4 h-4" />
         <span className="text-xs font-medium">{tab.label}</span>
@@ -1036,28 +1043,93 @@ export default function ScreenshotEditor() {
         </main>
       </div>
 
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-20 border-t border-border/30 bg-background/20 backdrop-blur-xl shadow-2xl shadow-black/20 mobile-controls-container rounded-t-xl transition-all duration-300">
+      <div
+        className="md:hidden fixed inset-0 z-10"
+        aria-hidden="true"
+        style={{
+          pointerEvents: activeTab && panelDragOffset === 0 ? "auto" : "none",
+        }}
+        onPointerDown={() => setActiveTab(null)}
+      />
+
+      <div
+        className="md:hidden fixed bottom-0 left-0 right-0 z-20 border-t border-border/30 bg-background backdrop-blur-xl shadow-2xl shadow-black/20 mobile-controls-container rounded-t-xl"
+        style={{
+          transform: `translateY(${Math.max(0, panelDragOffset)}px)`,
+          transition: panelDragOffset > 0 ? "none" : "transform 0.35s cubic-bezier(0.32,0.72,0,1)",
+        }}
+      >
+        {/* Drag handle */}
         <div
-          className="w-full flex justify-center py-2 cursor-pointer touch-none mobile-drag-handle"
-          onClick={() => setActiveTab(activeTab ? null : "background")}
+          className="w-full flex justify-center py-2.5 touch-none select-none cursor-grab active:cursor-grabbing mobile-drag-handle"
+          onPointerDown={(e) => {
+            e.preventDefault();
+            e.currentTarget.setPointerCapture(e.pointerId);
+            panelDragState.current = {
+              startY: e.clientY,
+              startOpen: !!activeTab,
+              velocity: 0,
+              lastY: e.clientY,
+              lastTime: Date.now(),
+            };
+            setPanelDragOffset(0);
+          }}
+          onPointerMove={(e) => {
+            if (!panelDragState.current) return;
+            const now = Date.now();
+            const dt = now - panelDragState.current.lastTime;
+            if (dt > 0) {
+              panelDragState.current.velocity =
+                (e.clientY - panelDragState.current.lastY) / dt;
+            }
+            panelDragState.current.lastY = e.clientY;
+            panelDragState.current.lastTime = now;
+            setPanelDragOffset(Math.max(0, e.clientY - panelDragState.current.startY));
+          }}
+          onPointerUp={(e) => {
+            if (!panelDragState.current) return;
+            const delta = e.clientY - panelDragState.current.startY;
+            const velocity = panelDragState.current.velocity;
+            const wasOpen = panelDragState.current.startOpen;
+            panelDragState.current = null;
+            setPanelDragOffset(0);
+
+            if (wasOpen && (delta > 80 || velocity > 0.5)) {
+              setActiveTab(null);
+            } else if (!wasOpen && (delta < -80 || velocity < -0.5)) {
+              setActiveTab("background");
+            }
+          }}
+          onPointerCancel={() => {
+            panelDragState.current = null;
+            setPanelDragOffset(0);
+          }}
         >
           <div
-            className={`h-1.5 rounded-full bg-muted-foreground/30 transition-all duration-300 ${activeTab ? "w-12 bg-muted-foreground/50" : "w-8"}`}
+            className={`h-1.5 rounded-full transition-all duration-200 ${
+              activeTab && panelDragOffset <= 20
+                ? "w-12 bg-muted-foreground/50"
+                : "w-8 bg-muted-foreground/30"
+            }`}
           />
         </div>
 
         <div
-          className={`transition-all duration-300 ease-in-out overflow-hidden ${activeTab ? "max-h-[60vh] opacity-100" : "max-h-0 opacity-0"}`}
+          className={`transition-all duration-300 ease-in-out overflow-hidden ${
+            activeTab ? "max-h-[60vh] opacity-100" : "max-h-0 opacity-0"
+          } ${!mounted ? "max-md:max-h-0 max-md:opacity-0" : ""}`}
         >
           <div
-            key={activeTab}
+            key={activeTab ?? "none"}
             className="px-4 pb-3 max-h-[50vh] overflow-y-auto sidebar-scroll select-none mobile-controls-content"
           >
             {activeTab && renderTabContent()}
           </div>
         </div>
+
         <div
-          className={`flex items-center justify-around gap-0 px-1 py-2 mobile-tabs-container transition-colors ${activeTab ? "border-t border-border/50" : ""}`}
+          className={`flex items-center justify-around gap-0 px-1 py-2 mobile-tabs-container transition-colors ${activeTab ? "border-t border-border/50" : ""
+            }`}
         >
           {tabs.map((tab) => renderTabButton(tab, "bottom"))}
         </div>
