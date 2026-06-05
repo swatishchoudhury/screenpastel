@@ -21,7 +21,7 @@ export function FloatingToolbar({
 }: FloatingToolbarProps) {
   if (!state.image) return null;
   return (
-    <div className="absolute top-4 md:top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-0.5 sm:gap-1 bg-background/80 backdrop-blur-md px-2 sm:px-3 py-1.5 rounded-full border border-border/50 shadow-lg select-none pointer-events-auto">
+    <div className="absolute top-4 md:top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-0.5 sm:gap-1 bg-background/80 dark:bg-accent/80 backdrop-blur-md px-2 sm:px-3 py-1.5 rounded-full border border-border/50 shadow-lg select-none pointer-events-auto">
       <Button
         variant="ghost"
         size="sm"

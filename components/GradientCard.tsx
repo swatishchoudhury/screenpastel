@@ -25,8 +25,8 @@ export default function GradientCard({
         <div
           className={`w-full rounded-md transition-all ${
             isSelected
-              ? "bg-white shadow-md p-1"
-              : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
+              ? "bg-white dark:bg-accent shadow-md p-1"
+              : "bg-white/50 dark:bg-accent/50 shadow-sm hover:shadow-md hover:bg-white/70 dark:hover:bg-accent/70 p-1"
           }`}
         >
           <div

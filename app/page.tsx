@@ -11,6 +11,8 @@ import {
   Maximize,
   Minus,
   Palette,
+  PanelLeftClose,
+  PanelLeftOpen,
   PanelTop,
   Plus,
   Redo2,
@@ -36,6 +38,7 @@ import BorderControls from "../components/BorderControls";
 import CropTool from "../components/CropTool";
 import { FloatingToolbar } from "../components/FloatingToolbar";
 import ShadowControls from "../components/ShadowControls";
+import { ThemeToggle } from "../components/ThemeToggle";
 import TransformControls from "../components/TransformControls";
 import WindowControls from "../components/WindowControls";
 import WindowStackComponent from "../components/WindowStackComponent";
@@ -126,6 +129,7 @@ const mergeStateWithNewImage = (
 
 export default function ScreenshotEditor() {
   const [activeTab, setActiveTab] = useState<TabType | null>("background");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -377,6 +381,7 @@ export default function ScreenshotEditor() {
       };
       reader.readAsDataURL(file);
     }
+    e.target.value = "";
   };
 
   const handlePaste = (e: ClipboardEvent) => {
@@ -550,7 +555,12 @@ export default function ScreenshotEditor() {
   ];
 
   const handleTabClick = (tabId: TabType) => {
-    setActiveTab(activeTab === tabId ? null : tabId);
+    if (sidebarCollapsed) {
+      setSidebarCollapsed(false);
+      setActiveTab(tabId);
+    } else {
+      setActiveTab(activeTab === tabId ? null : tabId);
+    }
   };
 
   const renderTabContent = () => {
@@ -929,30 +939,44 @@ export default function ScreenshotEditor() {
                 <Download className="w-4 h-4" />
                 <span className="hidden sm:inline">Export</span>
               </Button>
+              <div className="h-4 w-px bg-border mx-0.5 sm:mx-1" />
+              <ThemeToggle />
             </div>
           </div>
         </header>
 
         <div className="hidden md:flex flex-1 overflow-hidden">
           <aside className="flex flex-shrink-0 border-r border-border/50 bg-background/30 backdrop-blur-md h-full">
-            <nav className="flex flex-col gap-0.5 p-1.5 w-[72px] border-r border-border/30">
-              {tabs.map((tab) => renderTabButton(tab, "sidebar"))}
-            </nav>
+              <nav className="flex flex-col gap-0.5 p-1.5 w-[72px] border-r border-border/30">
+                <button
+                  onClick={() => setSidebarCollapsed((c) => !c)}
+                  className="flex flex-col items-center gap-1.5 px-2 py-3.5 rounded-xl transition-all w-full text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                >
+                  {sidebarCollapsed ? (
+                    <PanelLeftOpen className="w-5 h-5" />
+                  ) : (
+                    <PanelLeftClose className="w-5 h-5" />
+                  )}
+                </button>
+                <div className="w-full h-px bg-border/30 my-1" />
+                {tabs.map((tab) => renderTabButton(tab, "sidebar"))}
+              </nav>
 
-            {activeTab && (
-              <div
-                key={activeTab}
-                className="w-[300px] overflow-y-auto sidebar-scroll select-none"
-              >
-                <div className="p-4">
-                  <h2 className="text-base font-semibold text-foreground mb-4">
-                    {tabs.find((t) => t.id === activeTab)?.label}
-                  </h2>
-                  {renderTabContent()}
+              {!sidebarCollapsed && activeTab && (
+                <div
+                  key={activeTab}
+                  className="w-[300px] overflow-y-auto sidebar-scroll select-none"
+                >
+                  <div className="p-4">
+                    <h2 className="text-base font-semibold text-foreground mb-4">
+                      {tabs.find((t) => t.id === activeTab)?.label}
+                    </h2>
+                    {renderTabContent()}
+                  </div>
                 </div>
-              </div>
-            )}
-          </aside>
+              )}
+            </aside>
 
           <main className="flex-1 p-8 flex items-center justify-center bg-background/50 backdrop-blur-sm relative overflow-hidden">
             <FloatingToolbar
@@ -969,7 +993,7 @@ export default function ScreenshotEditor() {
               {renderCanvas(desktopCanvasRef)}
             </div>
 
-            <div className="absolute bottom-6 right-6 z-50 flex items-center gap-3 bg-background/80 backdrop-blur-md px-4 py-2 rounded-full border border-border/50 shadow-lg select-none">
+            <div className="absolute bottom-6 right-6 z-50 flex items-center gap-3 bg-background/80 dark:bg-accent/80 backdrop-blur-md px-4 py-2 rounded-full border border-border/50 shadow-lg select-none">
               <button
                 onClick={() => setCanvasZoom((z) => Math.max(0.1, z - 0.1))}
                 className="text-muted-foreground hover:text-foreground transition-colors"
@@ -1020,7 +1044,7 @@ export default function ScreenshotEditor() {
             {renderCanvas(mobileCanvasRef)}
           </div>
 
-          <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-background/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-border/50 shadow-lg select-none">
+          <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-background/80 dark:bg-accent/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-border/50 shadow-lg select-none">
             <button
               onClick={() => setCanvasZoom((z) => Math.max(0.1, z - 0.1))}
               className="text-muted-foreground hover:text-foreground"
@@ -1166,6 +1190,7 @@ export default function ScreenshotEditor() {
               onClick={() => {
                 resetHistory(mergeStateWithNewImage(state, null));
                 setShowConfirmDialog(false);
+                if (fileInputRef.current) fileInputRef.current.value = "";
               }}
             >
               Remove
