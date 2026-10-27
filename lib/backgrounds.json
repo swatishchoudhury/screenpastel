@@ -94,5 +94,11 @@
     "name": "Dark",
     "type": "solid",
     "value": "#1a1a1a"
+  },
+  {
+    "id": "transparent",
+    "name": "Transparent",
+    "type": "transparent",
+    "value": "transparent"
   }
 ]

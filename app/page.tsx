@@ -44,6 +44,7 @@ import {
   copyImage as copyImageUtil,
   exportImage as exportImageUtil,
 } from "../lib/imageExporter";
+import { CHECKERBOARD_STYLE } from "../lib/checkerboard";
 import type { EditorState } from "../lib/types";
 import { useHistory } from "../lib/useHistory";
 
@@ -88,7 +89,7 @@ const INITIAL_STATE: EditorState = {
       { id: "2", position: 100, color: "#fed6e3", opacity: 100 },
     ],
   },
-  address: "https://screenpastel.vercel.app",
+  address: "https://screenpastel.swatish.com",
   backgroundTintColor: "#000000",
   backgroundTintOpacity: 0,
   backgroundBlur: 0,
@@ -138,6 +139,7 @@ export default function ScreenshotEditor() {
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [copyMessage, setCopyMessage] = useState<string>("");
   const [isCopying, setIsCopying] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showCropTool, setShowCropTool] = useState(false);
 
@@ -472,11 +474,17 @@ export default function ScreenshotEditor() {
   };
 
   const exportImage = async () => {
+    if (isExporting) return;
     const activeCanvas = desktopCanvasRef.current?.offsetParent
       ? desktopCanvasRef.current
       : mobileCanvasRef.current;
     if (activeCanvas) {
-      exportImageUtil(activeCanvas);
+      setIsExporting(true);
+      try {
+        await exportImageUtil(activeCanvas);
+      } finally {
+        setIsExporting(false);
+      }
     }
   };
 
@@ -653,6 +661,13 @@ export default function ScreenshotEditor() {
             }, 3000);
           }}
         >
+          {state.background.type === "transparent" && (
+            <div
+              data-export-ignore="true"
+              className="absolute inset-0 pointer-events-none"
+              style={CHECKERBOARD_STYLE}
+            />
+          )}
           <div
             className="absolute pointer-events-none"
             style={{
@@ -923,11 +938,17 @@ export default function ScreenshotEditor() {
               </Button>
               <Button
                 onClick={exportImage}
-                disabled={!state.image}
+                disabled={!state.image || isExporting}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground px-1.5 sm:px-3"
               >
-                <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">Export</span>
+                {isExporting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                <span className="hidden sm:inline">
+                  {isExporting ? "Exporting..." : "Export"}
+                </span>
               </Button>
             </div>
           </div>
