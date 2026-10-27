@@ -7,7 +7,7 @@ interface WindowFrame {
 interface Background {
   id: string;
   name: string;
-  type: "gradient" | "solid" | "image";
+  type: "gradient" | "solid" | "image" | "transparent";
   value: string;
 }
 

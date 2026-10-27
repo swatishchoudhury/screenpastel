@@ -6,6 +6,12 @@ export async function exportImage(element: HTMLElement) {
       pixelRatio: 2,
       skipFonts: true,
       filter: (node) => {
+        if (
+          node instanceof HTMLElement &&
+          node.dataset.exportIgnore === "true"
+        ) {
+          return false;
+        }
         if (node instanceof HTMLImageElement && node.crossOrigin) {
           return false;
         }
@@ -37,6 +43,12 @@ export async function copyImage(element: HTMLElement) {
       pixelRatio: 2,
       skipFonts: true,
       filter: (node) => {
+        if (
+          node instanceof HTMLElement &&
+          node.dataset.exportIgnore === "true"
+        ) {
+          return false;
+        }
         if (node instanceof HTMLImageElement && node.crossOrigin) {
           return false;
         }

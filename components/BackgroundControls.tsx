@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useSavedThemes } from "@/hooks/useSavedThemes";
+import { CHECKERBOARD_STYLE } from "@/lib/checkerboard";
 import { buildGradient, parseGradient } from "@/lib/gradientUtils";
 import { BACKGROUNDS } from "../lib/data";
 import type { Background, EditorState } from "../lib/types";
@@ -95,6 +96,18 @@ export default function BackgroundControls({
         name: "Solid",
         type: "solid",
         value: color,
+      },
+    }));
+  };
+
+  const applyTransparent = () => {
+    commit((prev) => ({
+      ...prev,
+      background: {
+        id: "transparent",
+        name: "Transparent",
+        type: "transparent",
+        value: "transparent",
       },
     }));
   };
@@ -280,36 +293,9 @@ export default function BackgroundControls({
 
       <div className="space-y-3">
         <h3 className="text-sm font-medium text-foreground/80 border-b border-border/50 pb-1">
-          Solid Color
+          Background Fill
         </h3>
-        <div className="grid grid-cols-5 md:grid-cols-3 gap-2 md:gap-3">
-          <button
-            onClick={() => applySolidColor(solidColor)}
-            className="flex flex-col items-center gap-1 md:gap-1.5 group"
-          >
-            <div
-              className={`w-full rounded-md transition-all ${
-                isSelected("custom-solid")
-                  ? "bg-white shadow-md p-1"
-                  : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
-              }`}
-            >
-              <div
-                className="w-full aspect-[5/3] md:aspect-[4/3] rounded relative overflow-hidden flex items-center justify-center"
-                style={{ background: solidColor }}
-              >
-                {isSelected("custom-solid") ? (
-                  <Check className="w-3 h-3 md:w-4 md:h-4 text-white drop-shadow-lg" />
-                ) : (
-                  <Pencil className="w-3 h-3 md:w-3.5 md:h-3.5 text-white/70 drop-shadow-lg" />
-                )}
-              </div>
-            </div>
-            <span className="text-[10px] md:text-[11px] text-muted-foreground group-hover:text-foreground transition-colors">
-              Custom
-            </span>
-          </button>
-
+        <div className="grid grid-cols-4 gap-2">
           {presetSolids.map((bg) => (
             <button
               key={bg.id}
@@ -339,11 +325,66 @@ export default function BackgroundControls({
                   )}
                 </div>
               </div>
-              <span className="text-[10px] md:text-[11px] text-muted-foreground group-hover:text-foreground transition-colors truncate w-full text-center">
+              <span className="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors truncate w-full text-center">
                 {bg.name}
               </span>
             </button>
           ))}
+
+          <button
+            onClick={() => applySolidColor(solidColor)}
+            className="flex flex-col items-center gap-1 md:gap-1.5 group"
+          >
+            <div
+              className={`w-full rounded-md transition-all ${
+                isSelected("custom-solid")
+                  ? "bg-white shadow-md p-1"
+                  : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
+              }`}
+            >
+              <div
+                className="w-full aspect-[5/3] md:aspect-[4/3] rounded relative overflow-hidden flex items-center justify-center"
+                style={{ background: solidColor }}
+              >
+                {isSelected("custom-solid") ? (
+                  <Check className="w-3 h-3 md:w-4 md:h-4 text-white drop-shadow-lg" />
+                ) : (
+                  <Pencil className="w-3 h-3 md:w-3.5 md:h-3.5 text-white/70 drop-shadow-lg" />
+                )}
+              </div>
+            </div>
+            <span className="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">
+              Custom
+            </span>
+          </button>
+
+          <button
+            onClick={applyTransparent}
+            className="flex flex-col items-center gap-1 md:gap-1.5 group"
+            title="Transparent"
+          >
+            <div
+              className={`w-full rounded-md transition-all ${
+                isSelected("transparent")
+                  ? "bg-white shadow-md p-1"
+                  : "bg-white/50 shadow-sm hover:shadow-md hover:bg-white/70 p-1"
+              }`}
+            >
+              <div
+                className="w-full aspect-[5/3] md:aspect-[4/3] rounded relative overflow-hidden"
+                style={CHECKERBOARD_STYLE}
+              >
+                {isSelected("transparent") && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Check className="w-3 h-3 md:w-4 md:h-4 text-foreground drop-shadow" />
+                  </div>
+                )}
+              </div>
+            </div>
+            <span className="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors truncate w-full text-center">
+              Transparent
+            </span>
+          </button>
         </div>
 
         {isSelected("custom-solid") && (
